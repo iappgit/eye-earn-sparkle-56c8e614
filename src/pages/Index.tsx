@@ -1,35 +1,52 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { MediaCard } from '@/components/MediaCard';
 import { FloatingControls } from '@/components/FloatingControls';
-import { RewardNotification } from '@/components/RewardNotification';
+import { CoinSlideAnimation } from '@/components/CoinSlideAnimation';
 import { WalletScreen } from '@/components/WalletScreen';
 import { ProfileScreen } from '@/components/ProfileScreen';
 import { CrossNavigation } from '@/components/CrossNavigation';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-// Mock data
+// Mock data - more realistic content
 const mockMedia = [
   {
     id: '1',
     type: 'promo' as const,
-    src: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1080',
-    duration: 15,
+    src: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&h=1080&fit=crop',
+    duration: 8,
     reward: { amount: 50, type: 'vicoin' as const },
     title: 'Holiday Special',
   },
   {
     id: '2',
     type: 'video' as const,
-    src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1080',
+    src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1920&h=1080&fit=crop',
+    duration: 15,
     title: 'Trending Now',
   },
   {
     id: '3',
     type: 'promo' as const,
-    src: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=1080',
-    duration: 30,
+    src: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=1920&h=1080&fit=crop',
+    duration: 10,
     reward: { amount: 1, type: 'icoin' as const },
     title: 'Coffee Shop Reward',
+  },
+  {
+    id: '4',
+    type: 'image' as const,
+    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop',
+    title: 'Mountain View',
+  },
+  {
+    id: '5',
+    type: 'promo' as const,
+    src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&h=1080&fit=crop',
+    duration: 12,
+    reward: { amount: 25, type: 'vicoin' as const },
+    title: 'Sneaker Drop',
   },
 ];
 
@@ -54,19 +71,22 @@ const mockTransactions = [
 const Index = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [showReward, setShowReward] = useState(false);
-  const [currentReward, setCurrentReward] = useState<{ amount: number; type: 'vicoin' | 'icoin' } | null>(null);
+  const [showCoinSlide, setShowCoinSlide] = useState(false);
+  const [coinSlideType, setCoinSlideType] = useState<'vicoin' | 'icoin'>('vicoin');
   const [showWallet, setShowWallet] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [vicoins, setVicoins] = useState(mockUser.vicoins);
   const [icoins, setIcoins] = useState(mockUser.icoins);
+  const [swipeDirection, setSwipeDirection] = useState<'up' | 'down' | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const currentMedia = mockMedia[currentIndex];
 
+  // Handle promo completion - trigger coin slide animation
   const handleMediaComplete = useCallback(() => {
     if (currentMedia.reward) {
-      setCurrentReward(currentMedia.reward);
-      setShowReward(true);
+      setCoinSlideType(currentMedia.reward.type);
+      setShowCoinSlide(true);
       
       // Update balance
       if (currentMedia.reward.type === 'vicoin') {
@@ -74,31 +94,62 @@ const Index = () => {
       } else {
         setIcoins(prev => prev + currentMedia.reward!.amount);
       }
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([50, 30, 50]);
+      }
     }
   }, [currentMedia]);
 
-  const handleRewardComplete = () => {
-    setShowReward(false);
-    setCurrentReward(null);
-  };
+  const handleCoinSlideComplete = useCallback(() => {
+    setShowCoinSlide(false);
+  }, []);
 
-  const handleNavigate = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (direction === 'down') {
-      setCurrentIndex(prev => (prev + 1) % mockMedia.length);
+  // Navigate with swipe animation
+  const navigateToMedia = useCallback((direction: 'up' | 'down') => {
+    if (isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setSwipeDirection(direction);
+
+    setTimeout(() => {
+      if (direction === 'up') {
+        setCurrentIndex(prev => (prev + 1) % mockMedia.length);
+      } else {
+        setCurrentIndex(prev => (prev - 1 + mockMedia.length) % mockMedia.length);
+      }
       setIsLiked(false);
-    } else if (direction === 'up') {
-      setCurrentIndex(prev => (prev - 1 + mockMedia.length) % mockMedia.length);
-      setIsLiked(false);
+      setSwipeDirection(null);
+      setIsTransitioning(false);
+    }, 300);
+  }, [isTransitioning]);
+
+  const handleNavigate = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
+    if (direction === 'up') {
+      navigateToMedia('up');
+    } else if (direction === 'down') {
+      navigateToMedia('down');
     } else {
       toast(`Navigating ${direction}...`, {
         description: `This would show ${direction === 'left' ? 'friends feed' : 'promotions'}`,
       });
     }
-  };
+  }, [navigateToMedia]);
+
+  // Swipe gesture handling
+  const { handlers } = useSwipeNavigation({
+    threshold: 80,
+    onSwipeUp: () => navigateToMedia('up'),
+    onSwipeDown: () => navigateToMedia('down'),
+    onSwipeLeft: () => handleNavigate('right'),
+    onSwipeRight: () => handleNavigate('left'),
+  });
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     if (!isLiked) {
+      if (navigator.vibrate) navigator.vibrate(10);
       toast('Liked!', { description: 'Added to your favorites' });
     }
   };
@@ -116,18 +167,28 @@ const Index = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-background overflow-hidden">
-      {/* Main Media Display */}
-      <MediaCard
-        type={currentMedia.type}
-        src={currentMedia.src}
-        duration={currentMedia.duration}
-        reward={currentMedia.reward}
-        onComplete={handleMediaComplete}
-        isActive={true}
-      />
+    <div 
+      className="fixed inset-0 bg-background overflow-hidden touch-none"
+      {...handlers}
+    >
+      {/* Main Media Display with swipe animation */}
+      <div className={cn(
+        'absolute inset-0 transition-transform duration-300 ease-out',
+        swipeDirection === 'up' && 'animate-swipe-exit-up',
+        swipeDirection === 'down' && 'animate-swipe-exit-down'
+      )}>
+        <MediaCard
+          key={currentMedia.id}
+          type={currentMedia.type}
+          src={currentMedia.src}
+          duration={currentMedia.duration}
+          reward={currentMedia.reward}
+          onComplete={handleMediaComplete}
+          isActive={!isTransitioning}
+        />
+      </div>
 
-      {/* Cross Navigation */}
+      {/* Cross Navigation hints */}
       <CrossNavigation onNavigate={handleNavigate} />
 
       {/* Floating Controls */}
@@ -143,15 +204,12 @@ const Index = () => {
         commentCount={89}
       />
 
-      {/* Reward Notification */}
-      {currentReward && (
-        <RewardNotification
-          amount={currentReward.amount}
-          type={currentReward.type}
-          isVisible={showReward}
-          onComplete={handleRewardComplete}
-        />
-      )}
+      {/* Coin slide animation on reward */}
+      <CoinSlideAnimation
+        type={coinSlideType}
+        isAnimating={showCoinSlide}
+        onComplete={handleCoinSlideComplete}
+      />
 
       {/* Wallet Screen */}
       <WalletScreen

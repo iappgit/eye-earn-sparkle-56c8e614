@@ -173,4 +173,83 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Radial gradient background */
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+  }
+
+  /* Coin slide to wallet animation */
+  @keyframes slide-to-wallet {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: translate(-30vw, 20vh) scale(1.2);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-40vw, 40vh) scale(0.3);
+      opacity: 0;
+    }
+  }
+
+  .animate-slide-to-wallet {
+    animation: slide-to-wallet 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Sparkle trail animations */
+  @keyframes sparkle {
+    0% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(2); }
+    100% { opacity: 0; transform: scale(0); }
+  }
+
+  .animate-sparkle-1 {
+    animation: sparkle 0.4s ease-out 0.1s;
+  }
+  .animate-sparkle-2 {
+    animation: sparkle 0.4s ease-out 0.2s;
+  }
+  .animate-sparkle-3 {
+    animation: sparkle 0.4s ease-out 0.3s;
+  }
+
+  /* Swipe transition */
+  @keyframes swipe-exit-up {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-100%); opacity: 0; }
+  }
+  
+  @keyframes swipe-enter-up {
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes swipe-exit-down {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
+  }
+  
+  @keyframes swipe-enter-down {
+    0% { transform: translateY(-100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-swipe-exit-up {
+    animation: swipe-exit-up 0.3s ease-out forwards;
+  }
+  
+  .animate-swipe-enter-up {
+    animation: swipe-enter-up 0.3s ease-out forwards;
+  }
+
+  .animate-swipe-exit-down {
+    animation: swipe-exit-down 0.3s ease-out forwards;
+  }
+  
+  .animate-swipe-enter-down {
+    animation: swipe-enter-down 0.3s ease-out forwards;
+  }
 }
