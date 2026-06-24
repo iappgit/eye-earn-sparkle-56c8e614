@@ -135,7 +135,7 @@ export const DailySpinWheel: React.FC<DailySpinWheelProps> = ({ className, onSpi
           // Update balance
           await supabase
             .from('profiles')
-            .update({ [balanceField]: currentBalance + wonReward.value })
+            .update({ [balanceField]: currentBalance + wonReward.value } as any)
             .eq('user_id', user.id);
 
           // Record transaction

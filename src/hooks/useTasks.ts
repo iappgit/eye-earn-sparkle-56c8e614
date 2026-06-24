@@ -312,7 +312,7 @@ export const useTasks = () => {
         const currentBalance = (profileData as Record<string, number>)[coinField] || 0;
         await supabase
           .from('profiles')
-          .update({ [coinField]: currentBalance + task.template.reward_value })
+          .update({ [coinField]: currentBalance + task.template.reward_value } as any)
           .eq('user_id', user.id);
       }
     }
