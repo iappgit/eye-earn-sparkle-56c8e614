@@ -129,7 +129,7 @@ export const CoinGifting: React.FC<CoinGiftingProps> = ({ vicoins, icoins, onGif
       
       const { error: deductError } = await supabase
         .from('profiles')
-        .update({ [balanceField]: balance - amount })
+        .update({ [balanceField]: balance - amount } as any)
         .eq('user_id', user?.id);
 
       if (deductError) throw deductError;
@@ -147,7 +147,7 @@ export const CoinGifting: React.FC<CoinGiftingProps> = ({ vicoins, icoins, onGif
       
       const { error: addError } = await supabase
         .from('profiles')
-        .update({ [balanceField]: currentRecipientBalance + amount })
+        .update({ [balanceField]: currentRecipientBalance + amount } as any)
         .eq('user_id', selectedUser.user_id);
 
       if (addError) throw addError;
