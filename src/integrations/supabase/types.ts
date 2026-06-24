@@ -2342,6 +2342,29 @@ export type Database = {
         }
         Returns: Json
       }
+      get_leaderboard: {
+        Args: { p_limit?: number }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          level: number
+          rank: number
+          total_xp: number
+          user_id: string
+          username: string
+        }[]
+      }
+      get_my_profile_private: {
+        Args: never
+        Returns: {
+          icoin_balance: number
+          kyc_status: string
+          phone_number: string
+          phone_verified: boolean
+          referred_by: string
+          vicoin_balance: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
