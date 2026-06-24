@@ -1,8 +1,9 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OfflineProvider } from "@/contexts/OfflineContext";
 import { LocalizationProvider } from "@/contexts/LocalizationContext";
@@ -25,22 +26,35 @@ import MyPage from "./pages/MyPage";
 import NotFound from "./pages/NotFound";
 import SocialConnect from "./pages/SocialConnect";
 import { PromotionDetails } from "./components/PromotionDetails";
+import DemoApp from "./demo/DemoApp";
 
 const queryClient = new QueryClient();
 
+const ProductionSplash: React.FC = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith("/demo")) return null;
+  return <SplashScreen />;
+};
+
 const AppContent = () => {
+  const location = useLocation();
+  const isDemo = location.pathname.startsWith("/demo");
+
   const { isSwipingBack, swipeProgress } = useSwipeBack({
-    enabled: true,
+    enabled: !isDemo,
     threshold: 150,
     edgeWidth: 25,
   });
 
   return (
     <>
-      <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
-      <BreadcrumbNavigation />
-      <OfflineBanner />
+      {!isDemo && (
+        <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
+      )}
+      {!isDemo && <BreadcrumbNavigation />}
+      {!isDemo && <OfflineBanner />}
       <Routes>
+        <Route path="/demo" element={<DemoApp />} />
         <Route path="/auth" element={<Auth />} />
         <Route
           path="/"
@@ -108,7 +122,6 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SplashScreen />
     <LocalizationProvider>
       <AccessibilityProvider>
         <UICustomizationProvider>
@@ -117,6 +130,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <ProductionSplash />
                 <AuthProvider>
                   <OfflineProvider>
                     <AppContent />
