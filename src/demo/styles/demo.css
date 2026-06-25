@@ -500,3 +500,341 @@
 .demo-dashboard-section {
   margin-bottom: 1rem;
 }
+
+/* Phase 6C — POP live tracking simulation */
+
+.demo-tracking-root {
+  overflow: hidden;
+}
+
+.demo-tracking-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.demo-tracking-phase-badge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(270 90% 75%);
+  background: hsl(270 40% 18% / 0.9);
+  border: 1px solid hsl(270 60% 45% / 0.35);
+}
+
+.demo-tracking-phase-badge-ready {
+  color: hsl(140 70% 70%);
+  background: hsl(140 30% 14% / 0.9);
+  border-color: hsl(140 50% 40% / 0.4);
+}
+
+.demo-tracking-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 3.2;
+  max-height: 11.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: hsl(270 25% 8% / 0.95);
+  border: 1px solid hsl(270 50% 40% / 0.25);
+}
+
+.demo-tracking-camera {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  filter: blur(1px) brightness(0.55) saturate(0.85);
+  opacity: 0.75;
+}
+
+.demo-tracking-synthetic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, hsl(270 50% 22% / 0.35), transparent),
+    linear-gradient(180deg, hsl(270 30% 10%), hsl(280 25% 8%));
+}
+
+.demo-tracking-synthetic-svg,
+.demo-tracking-overlay-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.demo-tracking-overlay-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.demo-tracking-overlay-svg-dimmed {
+  mix-blend-mode: screen;
+  opacity: 0.92;
+}
+
+.demo-tracking-synth-face {
+  fill: none;
+  stroke: hsl(270 70% 60% / 0.35);
+  stroke-width: 1.5;
+  animation: demo-tracking-face-pulse 2.8s ease-in-out infinite;
+}
+
+.demo-tracking-synth-line {
+  stroke: hsl(185 90% 55% / 0.45);
+  stroke-width: 1.2;
+}
+
+.demo-tracking-synth-dot,
+.demo-tracking-synth-landmark,
+.demo-tracking-landmark {
+  fill: hsl(185 100% 60%);
+  animation: demo-tracking-landmark-pulse 1.8s ease-in-out infinite;
+}
+
+.demo-tracking-synth-pupil,
+.demo-tracking-pupil {
+  fill: hsl(45 100% 60%);
+}
+
+.demo-tracking-eye-left {
+  animation: demo-tracking-eye-drift 3.2s ease-in-out infinite alternate;
+}
+
+.demo-tracking-eye-right {
+  animation: demo-tracking-eye-drift 3.2s ease-in-out infinite alternate-reverse;
+}
+
+.demo-tracking-eye-ring {
+  fill: none;
+  stroke: hsl(270 80% 65% / 0.45);
+  stroke-width: 1;
+}
+
+.demo-tracking-gaze-line {
+  stroke: hsl(320 90% 65% / 0.75);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  animation: demo-tracking-gaze-stabilize 2.4s ease-in-out infinite;
+}
+
+.demo-tracking-gaze-target {
+  fill: hsl(320 90% 65% / 0.85);
+}
+
+.demo-tracking-face-box {
+  fill: none;
+  stroke: hsl(270 95% 65% / 0.55);
+  stroke-width: 1.2;
+}
+
+.demo-tracking-face-box-live {
+  animation: demo-tracking-box-pulse 2.5s ease-in-out infinite;
+}
+
+.demo-tracking-head-pose {
+  fill: hsl(0 0% 78% / 0.75);
+  font-size: 7px;
+  font-family: Rajdhani, sans-serif;
+}
+
+.demo-tracking-blink-ring {
+  fill: none;
+  stroke: hsl(330 80% 60% / 0.35);
+  stroke-width: 1;
+}
+
+.demo-tracking-blink-ring-active {
+  animation: demo-tracking-blink-pulse 0.28s ease-out;
+  stroke: hsl(330 90% 65% / 0.9);
+}
+
+.demo-tracking-blink-label {
+  fill: hsl(330 80% 70% / 0.8);
+  font-size: 5px;
+  text-transform: uppercase;
+}
+
+.demo-tracking-gate-row {
+  position: absolute;
+  left: 0.35rem;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.demo-tracking-gate-row::-webkit-scrollbar {
+  display: none;
+}
+
+.demo-tracking-gate {
+  flex-shrink: 0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 9999px;
+  font-size: 0.48rem;
+  font-weight: 600;
+  color: hsl(0 0% 55%);
+  background: hsl(0 0% 8% / 0.65);
+  border: 1px solid hsl(270 20% 30% / 0.35);
+}
+
+.demo-tracking-gate-active {
+  color: hsl(140 70% 72%);
+  border-color: hsl(140 50% 40% / 0.45);
+  background: hsl(140 25% 12% / 0.75);
+}
+
+.demo-tracking-camera-note {
+  margin-top: 0.4rem;
+  font-size: 0.6rem;
+  color: hsl(0 0% 58%);
+  text-align: center;
+}
+
+.demo-tracking-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 430px) {
+  .demo-tracking-status-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.demo-tracking-status-card {
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.65rem;
+  background: hsl(270 20% 10% / 0.75);
+  border: 1px solid hsl(270 25% 28% / 0.35);
+}
+
+.demo-tracking-status-card-active {
+  border-color: hsl(270 60% 50% / 0.35);
+  box-shadow: 0 0 12px hsl(270 80% 50% / 0.08);
+}
+
+.demo-tracking-status-label {
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: hsl(0 0% 55%);
+}
+
+.demo-tracking-status-value {
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 0.1rem;
+  color: hsl(0 0% 92%);
+}
+
+.demo-tracking-bars {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.demo-tracking-bar-track {
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: hsl(270 20% 16%);
+  overflow: hidden;
+}
+
+.demo-tracking-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, hsl(270 95% 55%), hsl(185 90% 50%));
+  transition: width 0.25s ease;
+}
+
+.demo-tracking-privacy {
+  margin-top: 0.45rem;
+  font-size: 0.55rem;
+  line-height: 1.35;
+  text-align: center;
+  color: hsl(0 0% 52%);
+}
+
+@keyframes demo-tracking-face-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes demo-tracking-box-pulse {
+  0%,
+  100% {
+    stroke-opacity: 0.45;
+  }
+  50% {
+    stroke-opacity: 0.95;
+  }
+}
+
+@keyframes demo-tracking-landmark-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes demo-tracking-eye-drift {
+  0% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes demo-tracking-gaze-stabilize {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes demo-tracking-blink-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoPreviewChip } from '../components/DemoPreviewChip';
+import { DemoLiveTrackingOverlay } from '../components/DemoLiveTrackingOverlay';
 
 const VERIFY_DURATION_MS = 4500;
 const TICK_MS = 80;
@@ -112,8 +113,10 @@ export const DemoVerify: React.FC = () => {
           <DemoPreviewChip />
         </div>
 
+        <DemoLiveTrackingOverlay progress={progress} popScore={popScore} />
+
         {/* Video preview area */}
-        <div className="relative flex-1 mx-4 rounded-2xl overflow-hidden demo-glow-ring min-h-[45dvh] max-h-[55dvh]">
+        <div className="relative mx-4 rounded-2xl overflow-hidden demo-glow-ring min-h-[28dvh] max-h-[38dvh]">
           <img
             src={offer.imageUrl}
             alt=""
@@ -197,8 +200,7 @@ export const DemoVerify: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Demo mode uses timed simulation — no camera, GPS, or external
-              services.
+              Demo POP tracking layer uses local preview plus timed simulation — not production biometrics.
             </p>
           </div>
         </div>
