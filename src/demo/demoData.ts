@@ -1,4 +1,12 @@
-import type { DemoOffer, DemoTransaction, CoinType } from './demoTypes';
+import type {
+  DemoOffer,
+  DemoTransaction,
+  PlatformId,
+  CampaignAction,
+  CampaignStrictness,
+  CampaignGates,
+  ConnectedPlatforms,
+} from './demoTypes';
 
 export const DEMO_TAGLINE = 'Verified attention becomes value.';
 
@@ -24,6 +32,176 @@ export const ICOIN_EXPLANATION =
 
 export const VALUE_FLOW_EXPLANATION =
   'Attention verified by POP becomes wallet value after review — then routes through ACoins and iCoins layers.';
+
+export const CREATOR_DISCLAIMER =
+  'Simulated creator profile. No external platform account access.';
+
+export const CAMPAIGN_DISCLAIMER =
+  'Simulated campaign preview. No real ad spend, reporting, payment, or delivery.';
+
+export const PLATFORM_DISCLAIMER =
+  'Simulated platform connection. No external account access.';
+
+export const CREATOR_NAME = 'Rafaela Studio';
+export const CREATOR_HANDLE = '@rafaela.creates';
+export const CREATOR_BIO =
+  'Creator profile combining verified attention, content value, and connected platforms.';
+
+export const CAMPAIGN_BRAND = 'Nike Running';
+export const CAMPAIGN_TITLE = 'Pegasus 41 Launch';
+
+export const DEFAULT_CONNECTED_PLATFORMS: ConnectedPlatforms = {
+  youtube: true,
+  tiktok: true,
+  instagram: false,
+  twitch: false,
+};
+
+export const DEFAULT_CAMPAIGN_GATES: CampaignGates = {
+  watchTime: true,
+  gazeConfidence: true,
+  completion: true,
+  ctaAction: false,
+};
+
+export const PLATFORM_META: Record<
+  PlatformId,
+  { label: string; color: string }
+> = {
+  youtube: { label: 'YouTube', color: 'hsl(0 80% 55%)' },
+  tiktok: { label: 'TikTok', color: 'hsl(180 80% 45%)' },
+  instagram: { label: 'Instagram', color: 'hsl(320 70% 55%)' },
+  twitch: { label: 'Twitch', color: 'hsl(270 70% 55%)' },
+};
+
+export const CREATOR_STATS = {
+  verifiedViews: '128.4K',
+  earnedAcoins: '2,840',
+  tipsReceived: '186',
+  activeCampaigns: 3,
+};
+
+export interface CreatorContentItem {
+  id: string;
+  platform: PlatformId;
+  title: string;
+  thumbnail: string;
+  verifiedViews: string;
+  earnedPreview: number;
+}
+
+export const CREATOR_CONTENT: CreatorContentItem[] = [
+  {
+    id: 'c1',
+    platform: 'youtube',
+    title: 'Studio setup tour',
+    thumbnail:
+      'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=400&fit=crop',
+    verifiedViews: '42K',
+    earnedPreview: 420,
+  },
+  {
+    id: 'c2',
+    platform: 'tiktok',
+    title: 'Morning routine',
+    thumbnail:
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop',
+    verifiedViews: '89K',
+    earnedPreview: 890,
+  },
+  {
+    id: 'c3',
+    platform: 'instagram',
+    title: 'Behind the lens',
+    thumbnail:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    verifiedViews: '31K',
+    earnedPreview: 310,
+  },
+  {
+    id: 'c4',
+    platform: 'youtube',
+    title: 'Edit workflow tips',
+    thumbnail:
+      'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=400&fit=crop',
+    verifiedViews: '18K',
+    earnedPreview: 180,
+  },
+  {
+    id: 'c5',
+    platform: 'twitch',
+    title: 'Live Q&A replay',
+    thumbnail:
+      'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=400&fit=crop',
+    verifiedViews: '12K',
+    earnedPreview: 120,
+  },
+  {
+    id: 'c6',
+    platform: 'tiktok',
+    title: 'Gear review clip',
+    thumbnail:
+      'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=400&h=400&fit=crop',
+    verifiedViews: '56K',
+    earnedPreview: 560,
+  },
+];
+
+export const CAMPAIGN_ACTIONS: { id: CampaignAction; label: string }[] = [
+  { id: 'follow', label: 'Follow' },
+  { id: 'visit', label: 'Visit' },
+  { id: 'shop', label: 'Shop' },
+  { id: 'save', label: 'Save' },
+];
+
+export const CAMPAIGN_REWARDS = [5, 10, 25, 50];
+
+export const CAMPAIGN_STRICTNESS_OPTIONS: {
+  id: CampaignStrictness;
+  label: string;
+}[] = [
+  { id: 'standard', label: 'Standard' },
+  { id: 'strong', label: 'Strong' },
+  { id: 'maximum', label: 'Maximum' },
+];
+
+export const CAMPAIGN_GATE_OPTIONS: {
+  id: keyof CampaignGates;
+  label: string;
+}[] = [
+  { id: 'watchTime', label: 'Watch time' },
+  { id: 'gazeConfidence', label: 'Gaze confidence' },
+  { id: 'completion', label: 'Completion' },
+  { id: 'ctaAction', label: 'CTA action' },
+];
+
+export function calculateCampaignBudget(
+  reward: number,
+  strictness: CampaignStrictness,
+  gates: CampaignGates,
+): {
+  rewardPool: number;
+  estimatedViews: number;
+  costPerAttention: string;
+  platformFee: number;
+} {
+  const strictnessMultiplier =
+    strictness === 'maximum' ? 0.72 : strictness === 'strong' ? 0.85 : 0.92;
+  const activeGates = Object.values(gates).filter(Boolean).length;
+  const gateBonus = 1 + activeGates * 0.03;
+
+  const estimatedViews = Math.round(1200 * strictnessMultiplier * gateBonus);
+  const rewardPool = reward * estimatedViews;
+  const costPerAttention = (rewardPool / estimatedViews / gateBonus).toFixed(2);
+  const platformFee = Math.round(rewardPool * 0.08);
+
+  return {
+    rewardPool,
+    estimatedViews,
+    costPerAttention,
+    platformFee,
+  };
+}
 
 export const DEMO_OFFERS: DemoOffer[] = [
   {

@@ -7,6 +7,11 @@ import type {
   DemoStep,
   WalletTab,
   WalletAction,
+  CreatorTab,
+  PlatformId,
+  CampaignAction,
+  CampaignStrictness,
+  CampaignGateKey,
 } from './demoTypes';
 import {
   getFeaturedOffer,
@@ -20,7 +25,20 @@ import {
   TIP_AMOUNT,
   WITHDRAW_AMOUNT,
   WITHDRAW_MIN,
+  DEFAULT_CONNECTED_PLATFORMS,
+  DEFAULT_CAMPAIGN_GATES,
 } from './demoData';
+
+const phase3Defaults = {
+  activeCreatorTab: 'profile' as CreatorTab,
+  connectedPlatforms: { ...DEFAULT_CONNECTED_PLATFORMS },
+  campaignAction: 'shop' as CampaignAction,
+  campaignReward: 25,
+  campaignStrictness: 'strong' as CampaignStrictness,
+  campaignGates: { ...DEFAULT_CAMPAIGN_GATES },
+  campaignPublished: false,
+  studioPreviewReady: false,
+};
 
 const initialState: DemoState = {
   currentStep: 'splash',
@@ -38,6 +56,7 @@ const initialState: DemoState = {
   selectedReceiptId: null,
   moneyNode: null,
   activeWalletAction: null,
+  ...phase3Defaults,
 };
 
 function demoReducer(state: DemoState, action: DemoAction): DemoState {
@@ -60,6 +79,34 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, selectedReceiptId: action.id };
     case 'SET_WALLET_ACTION':
       return { ...state, activeWalletAction: action.action };
+    case 'SET_CREATOR_TAB':
+      return { ...state, activeCreatorTab: action.tab };
+    case 'TOGGLE_DEMO_PLATFORM':
+      return {
+        ...state,
+        connectedPlatforms: {
+          ...state.connectedPlatforms,
+          [action.platform]: !state.connectedPlatforms[action.platform],
+        },
+      };
+    case 'SET_CAMPAIGN_ACTION':
+      return { ...state, campaignAction: action.action };
+    case 'SET_CAMPAIGN_REWARD':
+      return { ...state, campaignReward: action.reward };
+    case 'SET_CAMPAIGN_STRICTNESS':
+      return { ...state, campaignStrictness: action.strictness };
+    case 'TOGGLE_CAMPAIGN_GATE':
+      return {
+        ...state,
+        campaignGates: {
+          ...state.campaignGates,
+          [action.gate]: !state.campaignGates[action.gate],
+        },
+      };
+    case 'PUBLISH_CAMPAIGN_PREVIEW':
+      return { ...state, campaignPublished: true };
+    case 'SET_STUDIO_PREVIEW_READY':
+      return { ...state, studioPreviewReady: action.ready };
     case 'CLAIM_REWARD': {
       const offer = state.selectedOffer;
       if (!offer || state.rewardClaimed) return state;
@@ -71,9 +118,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         ...state,
         rewardClaimed: true,
         earnedThisSession: state.earnedThisSession + offer.rewardAmount,
-        walletBalance: isAcoin
-          ? state.walletBalance
-          : state.walletBalance,
+        walletBalance: isAcoin ? state.walletBalance : state.walletBalance,
         pendingAcoins: isAcoin
           ? state.pendingAcoins + offer.rewardAmount
           : state.pendingAcoins,
@@ -156,6 +201,16 @@ interface DemoContextValue {
   confirmTip: () => void;
   openReceipt: (id: string) => void;
   openMoneyMap: () => void;
+  setCreatorTab: (tab: CreatorTab) => void;
+  togglePlatform: (platform: PlatformId) => void;
+  setCampaignAction: (action: CampaignAction) => void;
+  setCampaignReward: (reward: number) => void;
+  setCampaignStrictness: (strictness: CampaignStrictness) => void;
+  toggleCampaignGate: (gate: CampaignGateKey) => void;
+  publishCampaignPreview: () => void;
+  setStudioPreviewReady: (ready: boolean) => void;
+  openTipFromProfile: () => void;
+  openFeedDemo: () => void;
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -177,6 +232,8 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: 'SET_WALLET_TAB', tab: 'overview' });
     }
     if (tab === 'system') dispatch({ type: 'SET_STEP', step: 'moneyMap' });
+    if (tab === 'profile') dispatch({ type: 'SET_STEP', step: 'profile' });
+    if (tab === 'create') dispatch({ type: 'SET_STEP', step: 'campaignBuilder' });
   }, []);
 
   const selectOffer = useCallback((offer: DemoOffer) => {
@@ -246,6 +303,50 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     dispatch({ type: 'SET_NAV_TAB', tab: 'system' });
   }, []);
 
+  const setCreatorTab = useCallback((tab: CreatorTab) => {
+    dispatch({ type: 'SET_CREATOR_TAB', tab });
+  }, []);
+
+  const togglePlatform = useCallback((platform: PlatformId) => {
+    dispatch({ type: 'TOGGLE_DEMO_PLATFORM', platform });
+  }, []);
+
+  const setCampaignAction = useCallback((action: CampaignAction) => {
+    dispatch({ type: 'SET_CAMPAIGN_ACTION', action });
+  }, []);
+
+  const setCampaignReward = useCallback((reward: number) => {
+    dispatch({ type: 'SET_CAMPAIGN_REWARD', reward });
+  }, []);
+
+  const setCampaignStrictness = useCallback((strictness: CampaignStrictness) => {
+    dispatch({ type: 'SET_CAMPAIGN_STRICTNESS', strictness });
+  }, []);
+
+  const toggleCampaignGate = useCallback((gate: CampaignGateKey) => {
+    dispatch({ type: 'TOGGLE_CAMPAIGN_GATE', gate });
+  }, []);
+
+  const publishCampaignPreview = useCallback(() => {
+    dispatch({ type: 'PUBLISH_CAMPAIGN_PREVIEW' });
+  }, []);
+
+  const setStudioPreviewReady = useCallback((ready: boolean) => {
+    dispatch({ type: 'SET_STUDIO_PREVIEW_READY', ready });
+  }, []);
+
+  const openTipFromProfile = useCallback(() => {
+    dispatch({ type: 'SET_NAV_TAB', tab: 'wallet' });
+    dispatch({ type: 'SET_STEP', step: 'wallet' });
+    dispatch({ type: 'SET_WALLET_TAB', tab: 'overview' });
+    dispatch({ type: 'SET_WALLET_ACTION', action: 'tip' });
+  }, []);
+
+  const openFeedDemo = useCallback(() => {
+    dispatch({ type: 'SET_STEP', step: 'feed' });
+    dispatch({ type: 'SET_NAV_TAB', tab: 'feed' });
+  }, []);
+
   const value: DemoContextValue = {
     state,
     goToStep,
@@ -266,6 +367,16 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     confirmTip,
     openReceipt,
     openMoneyMap,
+    setCreatorTab,
+    togglePlatform,
+    setCampaignAction,
+    setCampaignReward,
+    setCampaignStrictness,
+    toggleCampaignGate,
+    publishCampaignPreview,
+    setStudioPreviewReady,
+    openTipFromProfile,
+    openFeedDemo,
   };
 
   return (

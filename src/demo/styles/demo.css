@@ -252,3 +252,12 @@
 .demo-money-node-active {
   border-color: hsl(270 95% 65% / 0.45);
 }
+
+.demo-chip-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.demo-chip-scroll::-webkit-scrollbar {
+  display: none;
+}

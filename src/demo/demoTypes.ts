@@ -6,7 +6,9 @@ export type DemoStep =
   | 'reward'
   | 'wallet'
   | 'moneyMap'
-  | 'receipt';
+  | 'receipt'
+  | 'profile'
+  | 'campaignBuilder';
 
 export type DemoNavTab = 'feed' | 'wallet' | 'create' | 'profile' | 'system';
 
@@ -21,6 +23,20 @@ export type WalletTab =
   | 'review';
 
 export type WalletAction = 'convert' | 'pay' | 'withdraw' | 'tip';
+
+export type CreatorTab = 'profile' | 'platforms' | 'content';
+
+export type PlatformId = 'youtube' | 'tiktok' | 'instagram' | 'twitch';
+
+export type CampaignAction = 'follow' | 'visit' | 'shop' | 'save';
+
+export type CampaignStrictness = 'standard' | 'strong' | 'maximum';
+
+export type CampaignGateKey =
+  | 'watchTime'
+  | 'gazeConfidence'
+  | 'completion'
+  | 'ctaAction';
 
 export type DemoTransactionType =
   | 'earned'
@@ -64,6 +80,20 @@ export interface DemoTransaction {
   copy?: string;
 }
 
+export interface ConnectedPlatforms {
+  youtube: boolean;
+  tiktok: boolean;
+  instagram: boolean;
+  twitch: boolean;
+}
+
+export interface CampaignGates {
+  watchTime: boolean;
+  gazeConfidence: boolean;
+  completion: boolean;
+  ctaAction: boolean;
+}
+
 export interface DemoState {
   currentStep: DemoStep;
   activeNavTab: DemoNavTab;
@@ -80,6 +110,14 @@ export interface DemoState {
   selectedReceiptId: string | null;
   moneyNode: string | null;
   activeWalletAction: WalletAction | null;
+  activeCreatorTab: CreatorTab;
+  connectedPlatforms: ConnectedPlatforms;
+  campaignAction: CampaignAction;
+  campaignReward: number;
+  campaignStrictness: CampaignStrictness;
+  campaignGates: CampaignGates;
+  campaignPublished: boolean;
+  studioPreviewReady: boolean;
 }
 
 export type DemoAction =
@@ -97,4 +135,12 @@ export type DemoAction =
   | { type: 'PAY_PREVIEW' }
   | { type: 'WITHDRAW_PREVIEW' }
   | { type: 'TIP_PREVIEW' }
+  | { type: 'SET_CREATOR_TAB'; tab: CreatorTab }
+  | { type: 'TOGGLE_DEMO_PLATFORM'; platform: PlatformId }
+  | { type: 'SET_CAMPAIGN_ACTION'; action: CampaignAction }
+  | { type: 'SET_CAMPAIGN_REWARD'; reward: number }
+  | { type: 'SET_CAMPAIGN_STRICTNESS'; strictness: CampaignStrictness }
+  | { type: 'TOGGLE_CAMPAIGN_GATE'; gate: CampaignGateKey }
+  | { type: 'PUBLISH_CAMPAIGN_PREVIEW' }
+  | { type: 'SET_STUDIO_PREVIEW_READY'; ready: boolean }
   | { type: 'RESET_DEMO' };

@@ -8,28 +8,13 @@ import { DemoReward } from './screens/DemoReward';
 import { DemoWallet } from './screens/DemoWallet';
 import { DemoMoneyMap } from './screens/DemoMoneyMap';
 import { DemoReceipt } from './screens/DemoReceipt';
-import { DemoPlaceholder } from './screens/DemoPlaceholder';
+import { DemoCreatorProfile } from './screens/DemoCreatorProfile';
+import { DemoCampaignBuilder } from './screens/DemoCampaignBuilder';
 import './styles/demo.css';
-
-const FOCUSED_STEPS = new Set([
-  'splash',
-  'offer',
-  'verify',
-  'reward',
-  'moneyMap',
-  'receipt',
-]);
 
 const DemoRouter: React.FC = () => {
   const { state } = useDemoState();
-  const { currentStep, activeNavTab } = state;
-
-  if (
-    !FOCUSED_STEPS.has(currentStep) &&
-    (activeNavTab === 'create' || activeNavTab === 'profile')
-  ) {
-    return <DemoPlaceholder />;
-  }
+  const { currentStep } = state;
 
   switch (currentStep) {
     case 'splash':
@@ -48,6 +33,10 @@ const DemoRouter: React.FC = () => {
       return <DemoMoneyMap />;
     case 'receipt':
       return <DemoReceipt />;
+    case 'profile':
+      return <DemoCreatorProfile />;
+    case 'campaignBuilder':
+      return <DemoCampaignBuilder />;
     default:
       return <DemoSplash />;
   }
