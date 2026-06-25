@@ -42,6 +42,19 @@ export const CAMPAIGN_DISCLAIMER =
 export const PLATFORM_DISCLAIMER =
   'Simulated platform connection. No external account access.';
 
+export const CLICK_EARN_DISCLAIMER =
+  'Simulated creator value action. No real payment, transfer, or settlement.';
+
+export const ELO_DISCLAIMER =
+  'Simulated assistant preview. No live AI call or external data access.';
+
+export const PRODUCT_MAP_DISCLAIMER =
+  'Product map uses simulated demo flows. No real financial movement or external platform access.';
+
+export const CLICK_EARN_MIN = 1;
+export const CLICK_EARN_MAX = 25;
+export const CLICK_EARN_DEFAULT = 10;
+
 export const CREATOR_NAME = 'Rafaela Studio';
 export const CREATOR_HANDLE = '@rafaela.creates';
 export const CREATOR_BIO =
@@ -448,6 +461,186 @@ export function createWithdrawTransaction(amount: number): DemoTransaction {
   };
 }
 
+export function createClickEarnTransaction(amount: number): DemoTransaction {
+  return {
+    id: `tx-click-earn-${Date.now()}`,
+    simulatedId: nextSimulatedId(),
+    type: 'clickEarn',
+    amount,
+    coinType: 'icoin',
+    label: `Hold-to-value · ${TIP_CREATOR}`,
+    timestamp: formatDemoTime(),
+    status: 'completed-preview',
+    direction: 'out',
+    route: 'Hold-to-value creator offer',
+    copy: CLICK_EARN_DISCLAIMER,
+  };
+}
+
+export interface EloPrompt {
+  id: string;
+  label: string;
+}
+
+export const ELO_PROMPTS: EloPrompt[] = [
+  { id: 'explain-reward', label: 'Explain this reward' },
+  { id: 'summarize-wallet', label: 'Summarize my wallet' },
+  { id: 'build-campaign', label: 'Help build a campaign' },
+  { id: 'explain-pop', label: 'Explain POP verification' },
+  { id: 'optimize-profile', label: 'Optimize creator profile' },
+];
+
+export type EloModeKey = 'user' | 'creator' | 'brand' | 'system';
+
+const ELO_RESPONSES: Record<EloModeKey, Record<string, string>> = {
+  user: {
+    'explain-reward':
+      'Rewards in this demo come from verified attention. Watch an offer, pass POP checks, and value routes to ACoins (review) or iCoins (usable). Nothing here is real money.',
+    'summarize-wallet':
+      'Your demo wallet holds ACoins (attention accounting) and iCoins (usable preview balance). Convert, pay, tip, withdraw, and click-and-earn are all simulated routing previews.',
+    'build-campaign':
+      'As a user you see campaigns in the feed. Brands fund pools; creators distribute offers. Tap Create in the nav to preview how a brand would configure gates and rewards.',
+    'explain-pop':
+      'POP (proof-of-presence) simulates gaze and watch-time confidence during verify. It gates whether attention counts toward wallet value — no camera or real biometrics in this demo.',
+    'optimize-profile':
+      'Connect platforms on the creator profile to show cross-channel reach. In this preview, toggles are local only — no OAuth or external APIs.',
+  },
+  creator: {
+    'explain-reward':
+      'Creators earn when audiences verify attention on their content or receive hold-to-value iCoins. Rafaela Studio shows profile stats and tip routing in this investor flow.',
+    'summarize-wallet':
+      'Creator-side value accumulates as verified attention and tips. Wallet Sent tab shows outbound previews; Earned shows inbound simulated credits.',
+    'build-campaign':
+      'Use Campaign Builder to set action type, reward amount, strictness, and POP gates. Publish preview marks the campaign ready for Studio — no real ad delivery.',
+    'explain-pop':
+      'Stronger POP gates increase trust for brand partners. Creators benefit when verification is strict because rewards represent genuine attention.',
+    'optimize-profile':
+      'Enable YouTube, TikTok, Instagram, and Twitch chips to demonstrate connected reach. Add content tiles and open tip preview from profile actions.',
+  },
+  brand: {
+    'explain-reward':
+      'Brand reward pools fund verified views. Each completion debits the pool and credits the user after POP + review — all simulated in this prototype.',
+    'summarize-wallet':
+      'Brands track pool allocation vs. verified completions via the money movement map. No real invoicing or payment rails in demo mode.',
+    'build-campaign':
+      'Nike Running preview: pick shop/visit/follow action, set iCoin reward, choose strictness, toggle gates, then publish preview. Budget estimate updates locally.',
+    'explain-pop':
+      'POP is the quality layer brands buy into. Higher strictness means fewer but higher-confidence verifications — shown in campaign builder chips.',
+    'optimize-profile':
+      'Partner with creators like Rafaela Studio who show connected platforms and content performance. Profile is a routing surface, not a live CRM.',
+  },
+  system: {
+    'explain-reward':
+      'System layer: Feed → Offer → Verify → Reward → Wallet. Each hop is a deterministic demo step with receipt previews for audit storytelling.',
+    'summarize-wallet':
+      'Ledger stores all simulated transactions with status, route, and copy. Receipt screen is the investor-facing audit trail.',
+    'build-campaign':
+      'Campaign Builder connects brand intent to feed offers. Product Map shows how builder, POP, and wallet layers interlock.',
+    'explain-pop':
+      'POP sits between brand pool and pending review. It outputs a score used in verify UI — deterministic animation, no ML inference.',
+    'optimize-profile':
+      'Creator profile is the identity node in the ecosystem map. ELO routes investors to profile, wallet, and campaign surfaces on demand.',
+  },
+};
+
+export function getEloResponse(mode: EloModeKey, promptId: string): string {
+  return (
+    ELO_RESPONSES[mode][promptId] ??
+    'Select a prompt to see a deterministic explanation for this demo layer.'
+  );
+}
+
+export interface ProductMapNode {
+  id: string;
+  title: string;
+  subtitle: string;
+  explanation: string;
+  icon: string;
+}
+
+export const PRODUCT_MAP_NODES: ProductMapNode[] = [
+  {
+    id: 'users',
+    title: 'Users',
+    subtitle: 'Attention participants',
+    explanation:
+      'Users discover offers in the feed, verify attention, earn value, and route iCoins through wallet previews.',
+    icon: '👤',
+  },
+  {
+    id: 'creators',
+    title: 'Creators',
+    subtitle: 'Value publishers',
+    explanation:
+      'Creators like Rafaela Studio publish content, receive tips and hold-to-value, and connect platforms in profile.',
+    icon: '✦',
+  },
+  {
+    id: 'brands',
+    title: 'Brands',
+    subtitle: 'Campaign funders',
+    explanation:
+      'Brands configure campaigns with rewards, gates, and strictness. Funding flows through simulated pools only.',
+    icon: '◎',
+  },
+  {
+    id: 'merchants',
+    title: 'Merchants',
+    subtitle: 'Partner checkout',
+    explanation:
+      'Pay preview routes iCoins to partner merchants like iGo Partner Café — no real POS or settlement.',
+    icon: '🏪',
+  },
+  {
+    id: 'pop',
+    title: 'POP verification',
+    subtitle: 'Proof-of-presence',
+    explanation:
+      'Simulated gaze and watch-time scoring validates attention before value enters review or wallet.',
+    icon: '👁',
+  },
+  {
+    id: 'wallet',
+    title: 'Wallet / ACoins / iCoins',
+    subtitle: 'Value layers',
+    explanation:
+      'ACoins track verified attention; iCoins are usable demo balance. Tabs show overview, pending, sent, and review states.',
+    icon: '💎',
+  },
+  {
+    id: 'campaign-builder',
+    title: 'Campaign Builder',
+    subtitle: 'Brand studio',
+    explanation:
+      'Configure Nike Running-style campaigns with actions, rewards, POP gates, and publish preview.',
+    icon: '🎯',
+  },
+  {
+    id: 'creator-profile',
+    title: 'Creator Profile',
+    subtitle: 'Identity surface',
+    explanation:
+      'Rafaela Studio profile with platforms, stats, content grid, and tip entry — all local simulation.',
+    icon: '★',
+  },
+  {
+    id: 'money-movement',
+    title: 'Money Movement',
+    subtitle: 'Flow diagram',
+    explanation:
+      'Step-through map from brand pool to receipt preview. Complements the ecosystem product map.',
+    icon: '↻',
+  },
+  {
+    id: 'elo',
+    title: 'ELO / Ni',
+    subtitle: 'Assistant layer',
+    explanation:
+      'Deterministic product assistant explaining rewards, wallet, POP, and campaigns — no live AI.',
+    icon: '◈',
+  },
+];
+
 export function getTransactionIcon(type: DemoTransaction['type']): string {
   const map: Record<DemoTransaction['type'], string> = {
     earned: '↓',
@@ -455,6 +648,7 @@ export function getTransactionIcon(type: DemoTransaction['type']): string {
     pay: '◎',
     withdraw: '↗',
     tip: '♥',
+    clickEarn: '♥',
   };
   return map[type];
 }

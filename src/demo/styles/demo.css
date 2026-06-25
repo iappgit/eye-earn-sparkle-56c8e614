@@ -261,3 +261,146 @@
 .demo-chip-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* Phase 4 — concept screens */
+
+.demo-concept-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.demo-concept-card:active {
+  transform: scale(0.99);
+}
+
+.demo-concept-icon {
+  background: hsl(270 30% 14% / 0.9);
+  border: 1px solid hsl(270 40% 35% / 0.25);
+}
+
+.demo-concept-gold {
+  background: linear-gradient(
+    145deg,
+    hsl(35 30% 12% / 0.85),
+    hsl(320 25% 10% / 0.75)
+  );
+}
+
+.demo-concept-violet {
+  background: linear-gradient(
+    145deg,
+    hsl(270 35% 12% / 0.9),
+    hsl(280 30% 10% / 0.8)
+  );
+}
+
+.demo-click-love-btn {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, hsl(330 60% 22%), hsl(270 40% 18%));
+  border: 2px solid hsl(330 70% 55% / 0.35);
+  box-shadow: 0 0 24px hsl(330 80% 50% / 0.2);
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.demo-click-love-btn:active,
+.demo-click-love-btn-active {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 40px hsl(330 90% 55% / 0.45),
+    0 0 0 4px hsl(330 80% 60% / 0.15);
+}
+
+.demo-click-love-btn-liked {
+  border-color: hsl(330 60% 50% / 0.5);
+}
+
+.demo-click-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  overflow: hidden;
+}
+
+.demo-click-heart {
+  position: absolute;
+  bottom: 0;
+  animation: demo-heart-float 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes demo-heart-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2.5rem) scale(1.1);
+  }
+}
+
+.demo-click-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: hsl(270 20% 18%);
+  outline: none;
+}
+
+.demo-click-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, hsl(45 90% 55%), hsl(330 80% 55%));
+  border: 2px solid white;
+  box-shadow: 0 2px 8px hsl(0 0% 0% / 0.35);
+  cursor: pointer;
+}
+
+.demo-click-slider::-moz-range-thumb {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, hsl(45 90% 55%), hsl(330 80% 55%));
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+.demo-elo-membrane {
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, hsl(270 60% 30% / 0.25), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 60%, hsl(320 50% 30% / 0.12), transparent);
+}
+
+.demo-elo-membrane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    hsl(270 50% 50% / 0.03) 0px,
+    hsl(270 50% 50% / 0.03) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  pointer-events: none;
+}
+
+.demo-elo-panel {
+  backdrop-filter: blur(20px);
+  background: hsl(270 25% 10% / 0.75);
+}

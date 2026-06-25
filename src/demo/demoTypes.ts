@@ -8,7 +8,10 @@ export type DemoStep =
   | 'moneyMap'
   | 'receipt'
   | 'profile'
-  | 'campaignBuilder';
+  | 'campaignBuilder'
+  | 'clickEarn'
+  | 'elo'
+  | 'productMap';
 
 export type DemoNavTab = 'feed' | 'wallet' | 'create' | 'profile' | 'system';
 
@@ -38,12 +41,22 @@ export type CampaignGateKey =
   | 'completion'
   | 'ctaAction';
 
+export type ClickEarnMode =
+  | 'idle'
+  | 'liked'
+  | 'holding'
+  | 'preview'
+  | 'confirmed';
+
+export type EloMode = 'user' | 'creator' | 'brand' | 'system';
+
 export type DemoTransactionType =
   | 'earned'
   | 'convert'
   | 'pay'
   | 'withdraw'
-  | 'tip';
+  | 'tip'
+  | 'clickEarn';
 
 export type DemoTransactionStatus =
   | 'completed-preview'
@@ -118,6 +131,12 @@ export interface DemoState {
   campaignGates: CampaignGates;
   campaignPublished: boolean;
   studioPreviewReady: boolean;
+  clickEarnMode: ClickEarnMode;
+  clickEarnAmount: number;
+  clickEarnMessage: string | null;
+  eloMode: EloMode;
+  selectedEloPrompt: string | null;
+  selectedProductNode: string | null;
 }
 
 export type DemoAction =
@@ -143,4 +162,17 @@ export type DemoAction =
   | { type: 'TOGGLE_CAMPAIGN_GATE'; gate: CampaignGateKey }
   | { type: 'PUBLISH_CAMPAIGN_PREVIEW' }
   | { type: 'SET_STUDIO_PREVIEW_READY'; ready: boolean }
+  | { type: 'OPEN_CLICK_EARN' }
+  | { type: 'LIKE_CLICK_EARN' }
+  | { type: 'START_CLICK_EARN' }
+  | { type: 'SET_CLICK_EARN_AMOUNT'; amount: number }
+  | { type: 'PREVIEW_CLICK_EARN' }
+  | { type: 'CONFIRM_CLICK_EARN' }
+  | { type: 'CANCEL_CLICK_EARN' }
+  | { type: 'OPEN_ELO' }
+  | { type: 'SET_ELO_MODE'; mode: EloMode }
+  | { type: 'SELECT_ELO_PROMPT'; promptId: string }
+  | { type: 'OPEN_PRODUCT_MAP' }
+  | { type: 'OPEN_MONEY_MAP' }
+  | { type: 'SET_PRODUCT_NODE'; node: string | null }
   | { type: 'RESET_DEMO' };

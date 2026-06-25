@@ -1,9 +1,10 @@
 import React from 'react';
-import { MapPin, Coins, ChevronRight, Sparkles } from 'lucide-react';
+import { MapPin, Coins, ChevronRight, Sparkles, Heart, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEMO_OFFERS, getFeaturedOffer } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoConceptCard } from '../components/DemoConceptCard';
 import type { DemoOffer } from '../demoTypes';
 
 function CoinLabel({ type, amount }: { type: DemoOffer['rewardType']; amount: number }) {
@@ -25,7 +26,7 @@ function CoinLabel({ type, amount }: { type: DemoOffer['rewardType']; amount: nu
 }
 
 export const DemoFeed: React.FC = () => {
-  const { selectOffer, goToStep } = useDemoState();
+  const { selectOffer, goToStep, openClickEarn, openElo } = useDemoState();
   const featured = getFeaturedOffer();
 
   const handleViewOffer = (offer: DemoOffer) => {
@@ -87,6 +88,28 @@ export const DemoFeed: React.FC = () => {
             </div>
           </div>
         </article>
+
+        <section className="space-y-3 mb-5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
+            Concept previews
+          </h3>
+          <DemoConceptCard
+            title="Click-and-Earn"
+            subtitle="Hold the love button to send simulated value."
+            icon={<Heart className="w-5 h-5 text-pink-400 fill-pink-400/30" />}
+            accent="gold"
+            onClick={() => openClickEarn()}
+            delay="0.08s"
+          />
+          <DemoConceptCard
+            title="ELO"
+            subtitle="Ask the product layer to explain value, POP, wallet, or campaigns."
+            icon={<Brain className="w-5 h-5 text-violet-400" />}
+            accent="violet"
+            onClick={() => openElo()}
+            delay="0.12s"
+          />
+        </section>
 
         {/* Offer list */}
         <section className="space-y-3 pb-4">

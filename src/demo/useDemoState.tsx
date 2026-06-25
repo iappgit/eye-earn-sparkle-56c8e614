@@ -12,6 +12,7 @@ import type {
   CampaignAction,
   CampaignStrictness,
   CampaignGateKey,
+  EloMode,
 } from './demoTypes';
 import {
   getFeaturedOffer,
@@ -20,6 +21,7 @@ import {
   createPayTransaction,
   createTipTransaction,
   createWithdrawTransaction,
+  createClickEarnTransaction,
   CONVERT_AMOUNT,
   PAY_AMOUNT,
   TIP_AMOUNT,
@@ -27,7 +29,17 @@ import {
   WITHDRAW_MIN,
   DEFAULT_CONNECTED_PLATFORMS,
   DEFAULT_CAMPAIGN_GATES,
+  CLICK_EARN_DEFAULT,
 } from './demoData';
+
+const phase4Defaults = {
+  clickEarnMode: 'idle' as const,
+  clickEarnAmount: CLICK_EARN_DEFAULT,
+  clickEarnMessage: null as string | null,
+  eloMode: 'user' as EloMode,
+  selectedEloPrompt: null as string | null,
+  selectedProductNode: null as string | null,
+};
 
 const phase3Defaults = {
   activeCreatorTab: 'profile' as CreatorTab,
@@ -57,6 +69,7 @@ const initialState: DemoState = {
   moneyNode: null,
   activeWalletAction: null,
   ...phase3Defaults,
+  ...phase4Defaults,
 };
 
 function demoReducer(state: DemoState, action: DemoAction): DemoState {
@@ -107,6 +120,85 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, campaignPublished: true };
     case 'SET_STUDIO_PREVIEW_READY':
       return { ...state, studioPreviewReady: action.ready };
+    case 'OPEN_CLICK_EARN':
+      return {
+        ...state,
+        currentStep: 'clickEarn',
+        activeNavTab: 'feed',
+        clickEarnMode: 'idle',
+        clickEarnAmount: CLICK_EARN_DEFAULT,
+        clickEarnMessage: null,
+        activeWalletAction: null,
+      };
+    case 'LIKE_CLICK_EARN':
+      return {
+        ...state,
+        clickEarnMode: 'liked',
+        clickEarnMessage: 'Liked · no value moved',
+      };
+    case 'START_CLICK_EARN':
+      return {
+        ...state,
+        clickEarnMode: 'holding',
+        clickEarnMessage: 'Hold to set value…',
+      };
+    case 'SET_CLICK_EARN_AMOUNT':
+      return { ...state, clickEarnAmount: action.amount };
+    case 'PREVIEW_CLICK_EARN':
+      return {
+        ...state,
+        clickEarnMode: 'preview',
+        clickEarnMessage: `${state.clickEarnAmount} iCoins ready to preview`,
+      };
+    case 'CONFIRM_CLICK_EARN': {
+      if (state.icoinBalance < state.clickEarnAmount) return state;
+      const tx = createClickEarnTransaction(state.clickEarnAmount);
+      return {
+        ...state,
+        icoinBalance: state.icoinBalance - state.clickEarnAmount,
+        transactions: [tx, ...state.transactions],
+        clickEarnMode: 'confirmed',
+        clickEarnMessage: 'Simulated value sent to creator',
+        currentStep: 'clickEarn',
+        walletTab: 'sent',
+      };
+    }
+    case 'CANCEL_CLICK_EARN':
+      return {
+        ...state,
+        currentStep: 'feed',
+        activeNavTab: 'feed',
+        clickEarnMode: 'idle',
+        clickEarnAmount: CLICK_EARN_DEFAULT,
+        clickEarnMessage: null,
+      };
+    case 'OPEN_ELO':
+      return {
+        ...state,
+        currentStep: 'elo',
+        activeNavTab: 'feed',
+        activeWalletAction: null,
+      };
+    case 'SET_ELO_MODE':
+      return { ...state, eloMode: action.mode };
+    case 'SELECT_ELO_PROMPT':
+      return { ...state, selectedEloPrompt: action.promptId };
+    case 'OPEN_PRODUCT_MAP':
+      return {
+        ...state,
+        currentStep: 'productMap',
+        activeNavTab: 'system',
+        activeWalletAction: null,
+      };
+    case 'OPEN_MONEY_MAP':
+      return {
+        ...state,
+        currentStep: 'moneyMap',
+        activeNavTab: 'system',
+        activeWalletAction: null,
+      };
+    case 'SET_PRODUCT_NODE':
+      return { ...state, selectedProductNode: action.node };
     case 'CLAIM_REWARD': {
       const offer = state.selectedOffer;
       if (!offer || state.rewardClaimed) return state;
@@ -211,6 +303,18 @@ interface DemoContextValue {
   setStudioPreviewReady: (ready: boolean) => void;
   openTipFromProfile: () => void;
   openFeedDemo: () => void;
+  openClickEarn: () => void;
+  likeClickEarn: () => void;
+  startClickEarn: () => void;
+  setClickEarnAmount: (amount: number) => void;
+  previewClickEarn: () => void;
+  confirmClickEarn: () => void;
+  cancelClickEarn: () => void;
+  openElo: () => void;
+  setEloMode: (mode: EloMode) => void;
+  selectEloPrompt: (promptId: string) => void;
+  openProductMap: () => void;
+  setProductNode: (node: string | null) => void;
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -231,7 +335,7 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: 'SET_STEP', step: 'wallet' });
       dispatch({ type: 'SET_WALLET_TAB', tab: 'overview' });
     }
-    if (tab === 'system') dispatch({ type: 'SET_STEP', step: 'moneyMap' });
+    if (tab === 'system') dispatch({ type: 'SET_STEP', step: 'productMap' });
     if (tab === 'profile') dispatch({ type: 'SET_STEP', step: 'profile' });
     if (tab === 'create') dispatch({ type: 'SET_STEP', step: 'campaignBuilder' });
   }, []);
@@ -299,8 +403,7 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const openMoneyMap = useCallback(() => {
-    dispatch({ type: 'SET_STEP', step: 'moneyMap' });
-    dispatch({ type: 'SET_NAV_TAB', tab: 'system' });
+    dispatch({ type: 'OPEN_MONEY_MAP' });
   }, []);
 
   const setCreatorTab = useCallback((tab: CreatorTab) => {
@@ -347,6 +450,54 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     dispatch({ type: 'SET_NAV_TAB', tab: 'feed' });
   }, []);
 
+  const openClickEarn = useCallback(() => {
+    dispatch({ type: 'OPEN_CLICK_EARN' });
+  }, []);
+
+  const likeClickEarn = useCallback(() => {
+    dispatch({ type: 'LIKE_CLICK_EARN' });
+  }, []);
+
+  const startClickEarn = useCallback(() => {
+    dispatch({ type: 'START_CLICK_EARN' });
+  }, []);
+
+  const setClickEarnAmount = useCallback((amount: number) => {
+    dispatch({ type: 'SET_CLICK_EARN_AMOUNT', amount });
+  }, []);
+
+  const previewClickEarn = useCallback(() => {
+    dispatch({ type: 'PREVIEW_CLICK_EARN' });
+  }, []);
+
+  const confirmClickEarn = useCallback(() => {
+    dispatch({ type: 'CONFIRM_CLICK_EARN' });
+  }, []);
+
+  const cancelClickEarn = useCallback(() => {
+    dispatch({ type: 'CANCEL_CLICK_EARN' });
+  }, []);
+
+  const openElo = useCallback(() => {
+    dispatch({ type: 'OPEN_ELO' });
+  }, []);
+
+  const setEloMode = useCallback((mode: EloMode) => {
+    dispatch({ type: 'SET_ELO_MODE', mode });
+  }, []);
+
+  const selectEloPrompt = useCallback((promptId: string) => {
+    dispatch({ type: 'SELECT_ELO_PROMPT', promptId });
+  }, []);
+
+  const openProductMap = useCallback(() => {
+    dispatch({ type: 'OPEN_PRODUCT_MAP' });
+  }, []);
+
+  const setProductNode = useCallback((node: string | null) => {
+    dispatch({ type: 'SET_PRODUCT_NODE', node });
+  }, []);
+
   const value: DemoContextValue = {
     state,
     goToStep,
@@ -377,6 +528,18 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     setStudioPreviewReady,
     openTipFromProfile,
     openFeedDemo,
+    openClickEarn,
+    likeClickEarn,
+    startClickEarn,
+    setClickEarnAmount,
+    previewClickEarn,
+    confirmClickEarn,
+    cancelClickEarn,
+    openElo,
+    setEloMode,
+    selectEloPrompt,
+    openProductMap,
+    setProductNode,
   };
 
   return (

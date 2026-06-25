@@ -10,6 +10,9 @@ import { DemoMoneyMap } from './screens/DemoMoneyMap';
 import { DemoReceipt } from './screens/DemoReceipt';
 import { DemoCreatorProfile } from './screens/DemoCreatorProfile';
 import { DemoCampaignBuilder } from './screens/DemoCampaignBuilder';
+import { DemoClickEarn } from './screens/DemoClickEarn';
+import { DemoEloOverlay } from './screens/DemoEloOverlay';
+import { DemoProductMap } from './screens/DemoProductMap';
 import './styles/demo.css';
 
 const DemoRouter: React.FC = () => {
@@ -37,6 +40,12 @@ const DemoRouter: React.FC = () => {
       return <DemoCreatorProfile />;
     case 'campaignBuilder':
       return <DemoCampaignBuilder />;
+    case 'clickEarn':
+      return <DemoClickEarn />;
+    case 'elo':
+      return <DemoEloOverlay />;
+    case 'productMap':
+      return <DemoProductMap />;
     default:
       return <DemoSplash />;
   }

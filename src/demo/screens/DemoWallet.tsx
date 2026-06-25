@@ -108,7 +108,11 @@ export const DemoWallet: React.FC = () => {
         return transactions.filter((t) => t.type === 'earned');
       case 'sent':
         return transactions.filter(
-          (t) => t.type === 'pay' || t.type === 'tip' || t.type === 'withdraw',
+          (t) =>
+            t.type === 'pay' ||
+            t.type === 'tip' ||
+            t.type === 'withdraw' ||
+            t.type === 'clickEarn',
         );
       case 'review':
         return transactions.filter(
@@ -302,7 +306,7 @@ export const DemoWallet: React.FC = () => {
           <TxList
             txs={filteredTx}
             onOpen={openReceipt}
-            emptyLabel="No sent transactions — try Pay or Tip previews."
+            emptyLabel="No sent transactions — try Pay, Tip, or Click-and-Earn."
           />
         )}
 
