@@ -23,11 +23,25 @@ export const DemoEloOverlay: React.FC = () => {
     setNavTab,
     openMoneyMap,
     openProductMap,
+    openBrandDashboard,
   } = useDemoState();
 
   const { eloMode, selectedEloPrompt } = state;
   const response = selectedEloPrompt
-    ? getEloResponse(eloMode, selectedEloPrompt)
+    ? getEloResponse(eloMode, selectedEloPrompt, {
+        icoinBalance: state.icoinBalance,
+        pendingAcoins: state.pendingAcoins,
+        walletBalance: state.walletBalance,
+        earnedThisSession: state.earnedThisSession,
+        rewardClaimed: state.rewardClaimed,
+        selectedOffer: state.selectedOffer,
+        campaignPublished: state.campaignPublished,
+        campaignReward: state.campaignReward,
+        campaignAction: state.campaignAction,
+        campaignVerifiedViews: state.campaignVerifiedViews,
+        connectedPlatforms: state.connectedPlatforms,
+        transactions: state.transactions,
+      })
     : null;
 
   const route = (step: Parameters<typeof goToStep>[0], tab?: Parameters<typeof setNavTab>[0]) => {
@@ -147,7 +161,14 @@ export const DemoEloOverlay: React.FC = () => {
               </button>
               <button
                 type="button"
-                className="demo-cta-secondary demo-cta !min-h-10 text-xs col-span-2"
+                className="demo-cta-secondary demo-cta !min-h-10 text-xs"
+                onClick={() => openBrandDashboard()}
+              >
+                Brand Dashboard
+              </button>
+              <button
+                type="button"
+                className="demo-cta-secondary demo-cta !min-h-10 text-xs"
                 onClick={() => openProductMap()}
               >
                 Product Map

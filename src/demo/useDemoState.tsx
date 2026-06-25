@@ -13,6 +13,8 @@ import type {
   CampaignStrictness,
   CampaignGateKey,
   EloMode,
+  AnalyticsView,
+  AnalyticsRange,
 } from './demoTypes';
 import {
   getFeaturedOffer,
@@ -30,7 +32,17 @@ import {
   DEFAULT_CONNECTED_PLATFORMS,
   DEFAULT_CAMPAIGN_GATES,
   CLICK_EARN_DEFAULT,
+  CAMPAIGN_OFFER_ID,
 } from './demoData';
+
+const phase5Defaults = {
+  featuredDemoOfferSource: 'default' as const,
+  campaignVerifiedViews: 0,
+  claimedOfferIds: [] as string[],
+  analyticsView: 'brand' as AnalyticsView,
+  analyticsRange: 'today' as AnalyticsRange,
+  selectedAnalyticsInsight: null as string | null,
+};
 
 const phase4Defaults = {
   clickEarnMode: 'idle' as const,
@@ -70,6 +82,7 @@ const initialState: DemoState = {
   activeWalletAction: null,
   ...phase3Defaults,
   ...phase4Defaults,
+  ...phase5Defaults,
 };
 
 function demoReducer(state: DemoState, action: DemoAction): DemoState {
@@ -117,7 +130,13 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         },
       };
     case 'PUBLISH_CAMPAIGN_PREVIEW':
-      return { ...state, campaignPublished: true };
+      return {
+        ...state,
+        campaignPublished: true,
+        featuredDemoOfferSource: 'campaign',
+        verificationProgress: 0,
+        popScore: 0,
+      };
     case 'SET_STUDIO_PREVIEW_READY':
       return { ...state, studioPreviewReady: action.ready };
     case 'OPEN_CLICK_EARN':
@@ -199,16 +218,38 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       };
     case 'SET_PRODUCT_NODE':
       return { ...state, selectedProductNode: action.node };
+    case 'OPEN_BRAND_DASHBOARD':
+      return {
+        ...state,
+        currentStep: 'brandDashboard',
+        activeNavTab: 'create',
+        activeWalletAction: null,
+      };
+    case 'OPEN_ATTENTION_ANALYTICS':
+      return {
+        ...state,
+        currentStep: 'attentionAnalytics',
+        activeNavTab: 'create',
+        activeWalletAction: null,
+      };
+    case 'SET_ANALYTICS_VIEW':
+      return { ...state, analyticsView: action.view };
+    case 'SET_ANALYTICS_RANGE':
+      return { ...state, analyticsRange: action.range };
+    case 'SET_ANALYTICS_INSIGHT':
+      return { ...state, selectedAnalyticsInsight: action.insight };
     case 'CLAIM_REWARD': {
       const offer = state.selectedOffer;
-      if (!offer || state.rewardClaimed) return state;
+      if (!offer || state.claimedOfferIds.includes(offer.id)) return state;
 
       const tx = createEarnTransaction(offer, offer.rewardAmount);
       const isAcoin = offer.rewardType === 'acoin';
+      const isCampaignOffer = offer.id === CAMPAIGN_OFFER_ID;
 
       return {
         ...state,
         rewardClaimed: true,
+        claimedOfferIds: [...state.claimedOfferIds, offer.id],
         earnedThisSession: state.earnedThisSession + offer.rewardAmount,
         walletBalance: isAcoin ? state.walletBalance : state.walletBalance,
         pendingAcoins: isAcoin
@@ -217,6 +258,9 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         icoinBalance: !isAcoin
           ? state.icoinBalance + offer.rewardAmount
           : state.icoinBalance,
+        campaignVerifiedViews: isCampaignOffer
+          ? state.campaignVerifiedViews + 1
+          : state.campaignVerifiedViews,
         transactions: [tx, ...state.transactions],
         currentStep: 'reward',
       };
@@ -267,7 +311,12 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       };
     }
     case 'RESET_DEMO':
-      return { ...initialState, selectedOffer: getFeaturedOffer() };
+      return {
+        ...initialState,
+        selectedOffer: getFeaturedOffer(),
+        currentStep: action.target === 'feed' ? 'feed' : 'splash',
+        activeNavTab: action.target === 'feed' ? 'feed' : 'feed',
+      };
     default:
       return state;
   }
@@ -315,6 +364,13 @@ interface DemoContextValue {
   selectEloPrompt: (promptId: string) => void;
   openProductMap: () => void;
   setProductNode: (node: string | null) => void;
+  openBrandDashboard: () => void;
+  openAttentionAnalytics: () => void;
+  setAnalyticsView: (view: AnalyticsView) => void;
+  setAnalyticsRange: (range: AnalyticsRange) => void;
+  setAnalyticsInsight: (insight: string | null) => void;
+  restartDemoToSplash: () => void;
+  restartDemoToFeed: () => void;
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -357,7 +413,15 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const resetDemo = useCallback(() => {
-    dispatch({ type: 'RESET_DEMO' });
+    dispatch({ type: 'RESET_DEMO', target: 'splash' });
+  }, []);
+
+  const restartDemoToSplash = useCallback(() => {
+    dispatch({ type: 'RESET_DEMO', target: 'splash' });
+  }, []);
+
+  const restartDemoToFeed = useCallback(() => {
+    dispatch({ type: 'RESET_DEMO', target: 'feed' });
   }, []);
 
   const enterDemo = useCallback(() => {
@@ -498,6 +562,26 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     dispatch({ type: 'SET_PRODUCT_NODE', node });
   }, []);
 
+  const openBrandDashboard = useCallback(() => {
+    dispatch({ type: 'OPEN_BRAND_DASHBOARD' });
+  }, []);
+
+  const openAttentionAnalytics = useCallback(() => {
+    dispatch({ type: 'OPEN_ATTENTION_ANALYTICS' });
+  }, []);
+
+  const setAnalyticsView = useCallback((view: AnalyticsView) => {
+    dispatch({ type: 'SET_ANALYTICS_VIEW', view });
+  }, []);
+
+  const setAnalyticsRange = useCallback((range: AnalyticsRange) => {
+    dispatch({ type: 'SET_ANALYTICS_RANGE', range });
+  }, []);
+
+  const setAnalyticsInsight = useCallback((insight: string | null) => {
+    dispatch({ type: 'SET_ANALYTICS_INSIGHT', insight });
+  }, []);
+
   const value: DemoContextValue = {
     state,
     goToStep,
@@ -540,6 +624,13 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     selectEloPrompt,
     openProductMap,
     setProductNode,
+    openBrandDashboard,
+    openAttentionAnalytics,
+    setAnalyticsView,
+    setAnalyticsRange,
+    setAnalyticsInsight,
+    restartDemoToSplash,
+    restartDemoToFeed,
   };
 
   return (

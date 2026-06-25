@@ -13,6 +13,8 @@ import { DemoCampaignBuilder } from './screens/DemoCampaignBuilder';
 import { DemoClickEarn } from './screens/DemoClickEarn';
 import { DemoEloOverlay } from './screens/DemoEloOverlay';
 import { DemoProductMap } from './screens/DemoProductMap';
+import { DemoBrandDashboard } from './screens/DemoBrandDashboard';
+import { DemoAttentionAnalytics } from './screens/DemoAttentionAnalytics';
 import './styles/demo.css';
 
 const DemoRouter: React.FC = () => {
@@ -46,6 +48,10 @@ const DemoRouter: React.FC = () => {
       return <DemoEloOverlay />;
     case 'productMap':
       return <DemoProductMap />;
+    case 'brandDashboard':
+      return <DemoBrandDashboard />;
+    case 'attentionAnalytics':
+      return <DemoAttentionAnalytics />;
     default:
       return <DemoSplash />;
   }

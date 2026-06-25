@@ -17,6 +17,8 @@ import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoWalletTabs } from '../components/DemoWalletTabs';
 import { DemoActionSheet } from '../components/DemoActionSheet';
+import { DemoRestartControl } from '../components/DemoRestartControl';
+import { DemoRestartControl } from '../components/DemoRestartControl';
 import {
   WALLET_DISCLAIMER,
   ACOIN_EXPLANATION,
@@ -87,6 +89,7 @@ export const DemoWallet: React.FC = () => {
     openReceipt,
     openMoneyMap,
     goToStep,
+    restartDemoToFeed,
   } = useDemoState();
 
   const { walletTab, transactions } = state;
@@ -332,6 +335,8 @@ export const DemoWallet: React.FC = () => {
             {WALLET_DISCLAIMER}
           </p>
         </div>
+
+        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mt-3 mb-2" />
       </div>
 
       <DemoActionSheet />

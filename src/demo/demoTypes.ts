@@ -11,7 +11,9 @@ export type DemoStep =
   | 'campaignBuilder'
   | 'clickEarn'
   | 'elo'
-  | 'productMap';
+  | 'productMap'
+  | 'brandDashboard'
+  | 'attentionAnalytics';
 
 export type DemoNavTab = 'feed' | 'wallet' | 'create' | 'profile' | 'system';
 
@@ -49,6 +51,12 @@ export type ClickEarnMode =
   | 'confirmed';
 
 export type EloMode = 'user' | 'creator' | 'brand' | 'system';
+
+export type AnalyticsView = 'user' | 'creator' | 'brand' | 'system';
+
+export type AnalyticsRange = 'today' | 'week' | 'month';
+
+export type FeaturedOfferSource = 'default' | 'campaign';
 
 export type DemoTransactionType =
   | 'earned'
@@ -131,12 +139,18 @@ export interface DemoState {
   campaignGates: CampaignGates;
   campaignPublished: boolean;
   studioPreviewReady: boolean;
+  featuredDemoOfferSource: FeaturedOfferSource;
+  campaignVerifiedViews: number;
+  claimedOfferIds: string[];
   clickEarnMode: ClickEarnMode;
   clickEarnAmount: number;
   clickEarnMessage: string | null;
   eloMode: EloMode;
   selectedEloPrompt: string | null;
   selectedProductNode: string | null;
+  analyticsView: AnalyticsView;
+  analyticsRange: AnalyticsRange;
+  selectedAnalyticsInsight: string | null;
 }
 
 export type DemoAction =
@@ -175,4 +189,9 @@ export type DemoAction =
   | { type: 'OPEN_PRODUCT_MAP' }
   | { type: 'OPEN_MONEY_MAP' }
   | { type: 'SET_PRODUCT_NODE'; node: string | null }
-  | { type: 'RESET_DEMO' };
+  | { type: 'OPEN_BRAND_DASHBOARD' }
+  | { type: 'OPEN_ATTENTION_ANALYTICS' }
+  | { type: 'SET_ANALYTICS_VIEW'; view: AnalyticsView }
+  | { type: 'SET_ANALYTICS_RANGE'; range: AnalyticsRange }
+  | { type: 'SET_ANALYTICS_INSIGHT'; insight: string | null }
+  | { type: 'RESET_DEMO'; target?: 'splash' | 'feed' };

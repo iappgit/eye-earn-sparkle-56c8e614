@@ -6,6 +6,9 @@ import type {
   CampaignStrictness,
   CampaignGates,
   ConnectedPlatforms,
+  AnalyticsView,
+  AnalyticsRange,
+  FeaturedOfferSource,
 } from './demoTypes';
 
 export const DEMO_TAGLINE = 'Verified attention becomes value.';
@@ -62,6 +65,15 @@ export const CREATOR_BIO =
 
 export const CAMPAIGN_BRAND = 'Nike Running';
 export const CAMPAIGN_TITLE = 'Pegasus 41 Launch';
+export const CAMPAIGN_OFFER_ID = 'offer-campaign-preview';
+
+export const BRAND_DASHBOARD_DISCLAIMER =
+  'Simulated owner analytics. No real ad spend, reporting, payment, or delivery.';
+
+export const ANALYTICS_DISCLAIMER =
+  'Simulated analytics preview. No real tracking, platform reporting, or external data access.';
+
+export const RESTART_DEMO_LABEL = 'Restart simulated walkthrough';
 
 export const DEFAULT_CONNECTED_PLATFORMS: ConnectedPlatforms = {
   youtube: true,
@@ -214,6 +226,281 @@ export function calculateCampaignBudget(
     costPerAttention,
     platformFee,
   };
+}
+
+export function buildCampaignOffer(params: {
+  campaignAction: CampaignAction;
+  campaignReward: number;
+  campaignStrictness: CampaignStrictness;
+  campaignGates: CampaignGates;
+}): DemoOffer {
+  const actionLabel =
+    CAMPAIGN_ACTIONS.find((a) => a.id === params.campaignAction)?.label ?? 'Shop';
+  const gateCount = Object.values(params.campaignGates).filter(Boolean).length;
+
+  return {
+    id: CAMPAIGN_OFFER_ID,
+    brandName: CAMPAIGN_BRAND,
+    title: CAMPAIGN_TITLE,
+    description: `Published preview · ${actionLabel} CTA with ${params.campaignStrictness} POP strictness and ${gateCount} verification gates enabled.`,
+    imageUrl:
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1080&h=720&fit=crop',
+    rewardAmount: params.campaignReward,
+    rewardType: 'acoin',
+    category: 'Campaign',
+    distance: 'Live in feed',
+    durationSeconds: 15,
+    terms: `${CAMPAIGN_DISCLAIMER} One simulated reward per offer per session.`,
+  };
+}
+
+export interface FeaturedOfferParams {
+  featuredDemoOfferSource: FeaturedOfferSource;
+  campaignPublished: boolean;
+  campaignAction: CampaignAction;
+  campaignReward: number;
+  campaignStrictness: CampaignStrictness;
+  campaignGates: CampaignGates;
+}
+
+export function getActiveFeaturedOffer(params: FeaturedOfferParams): DemoOffer {
+  if (params.featuredDemoOfferSource === 'campaign' && params.campaignPublished) {
+    return buildCampaignOffer(params);
+  }
+  return getFeaturedOffer();
+}
+
+export interface BrandDashboardMetrics {
+  verifiedViews: number;
+  rewardPoolRemaining: number;
+  costPerAttention: string;
+  ctaCompletionRate: string;
+  fraudScreenPreview: string;
+  estimatedReach: number;
+  budgetCap: number;
+  spentPreview: number;
+  viewerRewards: number;
+  creatorShareValue: number;
+  platformFeePreview: number;
+  attentionConfidence: string;
+  sessionIntegrity: string;
+  completionQuality: string;
+  reviewPassedPreview: string;
+}
+
+export function getBrandDashboardMetrics(state: {
+  campaignPublished: boolean;
+  campaignReward: number;
+  campaignStrictness: CampaignStrictness;
+  campaignGates: CampaignGates;
+  campaignVerifiedViews: number;
+  studioPreviewReady: boolean;
+  popScore: number;
+}): BrandDashboardMetrics {
+  const budget = calculateCampaignBudget(
+    state.campaignReward,
+    state.campaignStrictness,
+    state.campaignGates,
+  );
+  const verifiedViews = state.campaignVerifiedViews;
+  const spentPreview = verifiedViews * state.campaignReward;
+  const creatorShareValue = Math.round(spentPreview * 0.12);
+  const viewerRewards = spentPreview - creatorShareValue;
+
+  const strictnessBoost =
+    state.campaignStrictness === 'maximum'
+      ? 94
+      : state.campaignStrictness === 'strong'
+        ? 88
+        : 81;
+
+  return {
+    verifiedViews,
+    rewardPoolRemaining: Math.max(0, budget.rewardPool - spentPreview),
+    costPerAttention: `${state.campaignReward} A`,
+    ctaCompletionRate: verifiedViews > 0 ? `${Math.min(92, 68 + verifiedViews * 8)}%` : '—',
+    fraudScreenPreview: verifiedViews > 0 ? '1 flagged · preview cleared' : '0 flagged · preview idle',
+    estimatedReach: budget.estimatedViews,
+    budgetCap: budget.rewardPool,
+    spentPreview,
+    viewerRewards,
+    creatorShareValue,
+    platformFeePreview: budget.platformFee,
+    attentionConfidence: `${strictnessBoost + Math.min(verifiedViews * 2, 6)}%`,
+    sessionIntegrity: state.studioPreviewReady ? 'Studio preview aligned' : 'Awaiting studio preview',
+    completionQuality: `${Math.min(97, strictnessBoost + 4)}%`,
+    reviewPassedPreview: verifiedViews > 0 ? `${verifiedViews} passed review preview` : 'Pending first verification',
+  };
+}
+
+export interface AnalyticsKpi {
+  label: string;
+  value: string;
+  sub?: string;
+}
+
+export interface AnalyticsLoop {
+  id: string;
+  label: string;
+  value: string;
+  description: string;
+}
+
+export interface AnalyticsInsight {
+  id: string;
+  label: string;
+  detail: string;
+}
+
+export const ANALYTICS_INSIGHTS: AnalyticsInsight[] = [
+  {
+    id: 'best-loop',
+    label: 'Best loop',
+    detail: 'Campaign loop shows strongest verified-attention efficiency when POP gates are enabled.',
+  },
+  {
+    id: 'highest-value',
+    label: 'Highest value content',
+    detail: 'Published campaign creative drives the highest reward-per-minute preview in this session.',
+  },
+  {
+    id: 'strongest-cta',
+    label: 'Strongest CTA',
+    detail: 'Shop action preview leads completion among configured campaign CTAs.',
+  },
+  {
+    id: 'wallet-trend',
+    label: 'Wallet conversion trend',
+    detail: 'ACoins pending review convert to usable iCoins after simulated review routing.',
+  },
+];
+
+const RANGE_MULTIPLIER: Record<AnalyticsRange, number> = {
+  today: 1,
+  week: 4.2,
+  month: 14,
+};
+
+export function getAttentionAnalyticsData(state: {
+  analyticsView: AnalyticsView;
+  analyticsRange: AnalyticsRange;
+  earnedThisSession: number;
+  pendingAcoins: number;
+  icoinBalance: number;
+  campaignPublished: boolean;
+  campaignVerifiedViews: number;
+  campaignReward: number;
+  campaignAction: CampaignAction;
+  popScore: number;
+  transactions: DemoTransaction[];
+}): {
+  kpis: AnalyticsKpi[];
+  loops: AnalyticsLoop[];
+  insights: AnalyticsInsight[];
+} {
+  const mult = RANGE_MULTIPLIER[state.analyticsRange];
+  const verifiedMinutes = Math.round(
+    (state.campaignVerifiedViews * 0.25 + state.transactions.filter((t) => t.type === 'earned').length * 0.18) *
+      mult,
+  );
+  const popAvg = state.popScore > 0 ? `${state.popScore}%` : `${78 + state.campaignVerifiedViews * 4}%`;
+  const actionLabel =
+    CAMPAIGN_ACTIONS.find((a) => a.id === state.campaignAction)?.label ?? 'Shop';
+
+  const viewKpis: Record<AnalyticsView, AnalyticsKpi[]> = {
+    user: [
+      { label: 'Verified attention min', value: `${verifiedMinutes}`, sub: 'preview' },
+      { label: 'POP confidence avg', value: popAvg },
+      { label: 'Rewards earned', value: `${Math.round(state.earnedThisSession * mult)}`, sub: 'A/i preview' },
+      { label: 'Campaign efficiency', value: state.campaignPublished ? 'High preview' : '—' },
+      { label: 'Review / fraud screen', value: state.pendingAcoins > 0 ? '1 pending review' : 'Clear preview' },
+      { label: 'Creator value routed', value: `${Math.round(state.earnedThisSession * 0.12 * mult)}`, sub: 'A preview' },
+    ],
+    creator: [
+      { label: 'Verified attention min', value: `${Math.round(verifiedMinutes * 1.4)}` },
+      { label: 'POP confidence avg', value: popAvg },
+      { label: 'Tips + hold value', value: `${Math.round(10 * mult)}`, sub: 'i preview' },
+      { label: 'Creator value routed', value: `${Math.round(186 * (mult / 14))}`, sub: 'A preview' },
+      { label: 'Campaign efficiency', value: 'Creator loop strong' },
+      { label: 'Review / fraud screen', value: '0 flagged preview' },
+    ],
+    brand: [
+      { label: 'Verified views', value: `${Math.round(state.campaignVerifiedViews * mult)}` },
+      { label: 'POP confidence avg', value: popAvg },
+      { label: 'Reward pool spent', value: `${state.campaignVerifiedViews * state.campaignReward} A`, sub: 'preview' },
+      { label: 'Campaign efficiency', value: state.campaignPublished ? `${actionLabel} CTA leading` : 'Draft' },
+      { label: 'Review / fraud screen', value: 'Preview queue clear' },
+      { label: 'Estimated reach', value: `${Math.round(1200 * mult / 14)}`, sub: 'preview' },
+    ],
+    system: [
+      { label: 'Verified attention min', value: `${verifiedMinutes}` },
+      { label: 'POP confidence avg', value: popAvg },
+      { label: 'Ledger events', value: `${state.transactions.length}` },
+      { label: 'Campaign loop status', value: state.campaignPublished ? 'Published preview' : 'Draft preview' },
+      { label: 'Review / fraud screen', value: 'Simulated gate active' },
+      { label: 'Wallet conversion', value: `${state.icoinBalance} i`, sub: 'usable preview' },
+    ],
+  };
+
+  const loops: AnalyticsLoop[] = [
+    {
+      id: 'watch',
+      label: 'Watch loop',
+      value: `${Math.round(verifiedMinutes * 0.55)} min`,
+      description: 'Feed → verify → reward preview for immersive offers.',
+    },
+    {
+      id: 'igo',
+      label: 'iGo / local loop',
+      value: `${Math.round(verifiedMinutes * 0.2)} min`,
+      description: 'Nearby merchant and partner routing previews.',
+    },
+    {
+      id: 'creator',
+      label: 'Creator value loop',
+      value: `${Math.round(verifiedMinutes * 0.15)} min`,
+      description: 'Tips, hold-to-value, and profile-attention previews.',
+    },
+    {
+      id: 'campaign',
+      label: 'Campaign loop',
+      value: state.campaignPublished
+        ? `${state.campaignVerifiedViews} verified`
+        : 'Awaiting publish',
+      description: 'Brand pool → POP → wallet value → owner analytics.',
+    },
+  ];
+
+  return {
+    kpis: viewKpis[state.analyticsView],
+    loops,
+    insights: ANALYTICS_INSIGHTS.map((insight) => ({
+      ...insight,
+      detail:
+        insight.id === 'strongest-cta'
+          ? `${actionLabel} action preview leads completion among configured campaign CTAs.`
+          : insight.detail,
+    })),
+  };
+}
+
+export interface EloContext {
+  icoinBalance: number;
+  pendingAcoins: number;
+  walletBalance: number;
+  earnedThisSession: number;
+  rewardClaimed: boolean;
+  selectedOffer: DemoOffer | null;
+  campaignPublished: boolean;
+  campaignReward: number;
+  campaignAction: CampaignAction;
+  campaignVerifiedViews: number;
+  connectedPlatforms: ConnectedPlatforms;
+  transactions: DemoTransaction[];
+}
+
+export function getConnectedPlatformCount(platforms: ConnectedPlatforms): number {
+  return Object.values(platforms).filter(Boolean).length;
 }
 
 export const DEMO_OFFERS: DemoOffer[] = [
@@ -543,11 +830,74 @@ const ELO_RESPONSES: Record<EloModeKey, Record<string, string>> = {
   },
 };
 
-export function getEloResponse(mode: EloModeKey, promptId: string): string {
-  return (
+export function getEloResponse(mode: EloModeKey, promptId: string, ctx?: EloContext): string {
+  const base =
     ELO_RESPONSES[mode][promptId] ??
-    'Select a prompt to see a deterministic explanation for this demo layer.'
-  );
+    'Select a prompt to see a deterministic explanation for this demo layer.';
+
+  if (!ctx) return base;
+
+  const contextLines: string[] = [];
+  const actionLabel =
+    CAMPAIGN_ACTIONS.find((a) => a.id === ctx.campaignAction)?.label ?? ctx.campaignAction;
+  const lastTx = ctx.transactions[0];
+  const offerLabel = ctx.selectedOffer
+    ? `${ctx.selectedOffer.brandName} — ${ctx.selectedOffer.title}`
+    : 'No offer selected';
+
+  if (promptId === 'summarize-wallet') {
+    contextLines.push(
+      `Your wallet currently shows ${ctx.icoinBalance} iCoins usable and ${ctx.pendingAcoins} ACoins pending review (${ctx.walletBalance} A attention balance).`,
+    );
+    if (ctx.earnedThisSession > 0) {
+      contextLines.push(`Earned this session (preview): ${ctx.earnedThisSession} value units.`);
+    }
+  }
+
+  if (promptId === 'explain-reward') {
+    contextLines.push(`Active offer context: ${offerLabel}.`);
+    if (ctx.rewardClaimed) {
+      contextLines.push('A reward preview has already been claimed this session for at least one offer.');
+    }
+    if (ctx.campaignPublished) {
+      contextLines.push(
+        `The published campaign preview is ${CAMPAIGN_TITLE} with a ${ctx.campaignReward} ACoin reward.`,
+      );
+    }
+  }
+
+  if (promptId === 'build-campaign') {
+    if (ctx.campaignPublished) {
+      contextLines.push(
+        `${CAMPAIGN_BRAND} campaign is published in feed preview with ${actionLabel} CTA and ${ctx.campaignReward} A reward.`,
+      );
+      contextLines.push(`Verified views collected (preview): ${ctx.campaignVerifiedViews}.`);
+    } else {
+      contextLines.push('Campaign is still in draft preview — publish to link it to the earning feed.');
+    }
+  }
+
+  if (promptId === 'explain-pop') {
+    contextLines.push(
+      ctx.campaignPublished
+        ? 'Published campaign uses configured POP gates from Campaign Builder.'
+        : 'Configure POP gates in Campaign Builder before publishing preview.',
+    );
+  }
+
+  if (promptId === 'optimize-profile') {
+    contextLines.push(
+      `${getConnectedPlatformCount(ctx.connectedPlatforms)} platforms connected in creator profile preview.`,
+    );
+  }
+
+  if (lastTx) {
+    contextLines.push(`Last ledger event (preview): ${lastTx.type} · ${lastTx.label}.`);
+  }
+
+  contextLines.push('This is simulated guidance. No live AI call or external account access.');
+
+  return [base, ...contextLines].join(' ');
 }
 
 export interface ProductMapNode {
@@ -580,7 +930,7 @@ export const PRODUCT_MAP_NODES: ProductMapNode[] = [
     title: 'Brands',
     subtitle: 'Campaign funders',
     explanation:
-      'Brands configure campaigns with rewards, gates, and strictness. Funding flows through simulated pools only.',
+      'Brands configure campaigns, publish to the earning feed, and review verified attention in Owner Analytics.',
     icon: '◎',
   },
   {
@@ -638,6 +988,30 @@ export const PRODUCT_MAP_NODES: ProductMapNode[] = [
     explanation:
       'Deterministic product assistant explaining rewards, wallet, POP, and campaigns — no live AI.',
     icon: '◈',
+  },
+  {
+    id: 'brand-dashboard',
+    title: 'Brand Dashboard',
+    subtitle: 'Owner analytics',
+    explanation:
+      'Nike Running owner view — verified views, reward pool, POP quality, and CTA performance previews.',
+    icon: '📊',
+  },
+  {
+    id: 'attention-analytics',
+    title: 'Attention Analytics',
+    subtitle: 'Cross-layer metrics',
+    explanation:
+      'Measure verified attention across user, creator, brand, and system views — all simulated.',
+    icon: '📈',
+  },
+  {
+    id: 'published-campaign',
+    title: 'Published Campaign',
+    subtitle: 'Feed linkage loop',
+    explanation:
+      'Brand publishes in Campaign Builder → offer appears in Feed → user verifies → wallet updates → brand sees analytics.',
+    icon: '🔗',
   },
 ];
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { MapPin, Coins, ChevronRight, Sparkles, Heart, Brain } from 'lucide-react';
+import { MapPin, Coins, ChevronRight, Sparkles, Heart, Brain, Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DEMO_OFFERS, getFeaturedOffer } from '../demoData';
+import { DEMO_OFFERS, getActiveFeaturedOffer, CAMPAIGN_BRAND } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoConceptCard } from '../components/DemoConceptCard';
@@ -26,17 +26,23 @@ function CoinLabel({ type, amount }: { type: DemoOffer['rewardType']; amount: nu
 }
 
 export const DemoFeed: React.FC = () => {
-  const { selectOffer, goToStep, openClickEarn, openElo } = useDemoState();
-  const featured = getFeaturedOffer();
+  const { state, selectOffer, goToStep, openClickEarn, openElo } = useDemoState();
+  const featured = getActiveFeaturedOffer(state);
 
   const handleViewOffer = (offer: DemoOffer) => {
     selectOffer(offer);
     goToStep('offer');
   };
 
+  const isCampaignFeatured =
+    state.campaignPublished && state.featuredDemoOfferSource === 'campaign';
+
   return (
     <DemoShell showNav>
-      <div className="px-4 pt-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+      <div
+        className="px-4 pt-4 demo-safe-pad-nav"
+        style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+      >
         <header className="mb-5 demo-animate-fade-up">
           <div className="flex items-center justify-between mb-1">
             <h1 className="font-display text-2xl font-bold">
@@ -52,7 +58,22 @@ export const DemoFeed: React.FC = () => {
           </p>
         </header>
 
-        {/* Featured hero card */}
+        {state.campaignPublished && (
+          <div className="demo-glass-card demo-published-banner p-4 mb-4 demo-animate-fade-up border-green-500/25">
+            <div className="flex items-start gap-3">
+              <Megaphone className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-1">
+                  Published Preview
+                </p>
+                <p className="text-sm text-foreground/90 leading-snug">
+                  {CAMPAIGN_BRAND} campaign is now live in the earning feed.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <article
           className="demo-glass-card demo-glow-ring overflow-hidden mb-5 demo-animate-fade-up"
           style={{ animationDelay: '0.05s' }}
@@ -64,16 +85,21 @@ export const DemoFeed: React.FC = () => {
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent" />
+            <div className="absolute top-3 left-3">
+              {isCampaignFeatured && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider bg-green-500/20 text-green-300 border border-green-500/30 px-2 py-1 rounded-full">
+                  Campaign live
+                </span>
+              )}
+            </div>
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <p className="text-xs text-primary font-medium mb-1 uppercase tracking-wider">
-                Featured offer
+                {isCampaignFeatured ? 'Published campaign offer' : 'Featured offer'}
               </p>
               <h2 className="font-display text-xl font-bold text-white mb-1">
                 {featured.brandName}
               </h2>
-              <p className="text-sm text-white/80 mb-3 line-clamp-2">
-                {featured.title}
-              </p>
+              <p className="text-sm text-white/80 mb-3 line-clamp-2">{featured.title}</p>
               <div className="flex items-center justify-between gap-3">
                 <CoinLabel type={featured.rewardType} amount={featured.rewardAmount} />
                 <button
@@ -111,45 +137,42 @@ export const DemoFeed: React.FC = () => {
           />
         </section>
 
-        {/* Offer list */}
         <section className="space-y-3 pb-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
             Nearby offers
           </h3>
-          {DEMO_OFFERS.map((offer, i) => (
-            <button
-              key={offer.id}
-              type="button"
-              onClick={() => handleViewOffer(offer)}
-              className="demo-glass-card w-full text-left p-4 flex gap-3 items-center demo-animate-fade-up"
-              style={{ animationDelay: `${0.1 + i * 0.05}s` }}
-            >
-              <img
-                src={offer.imageUrl}
-                alt=""
-                className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground truncate">
-                  {offer.brandName}
-                </p>
-                <p className="text-xs text-muted-foreground truncate mb-1.5">
-                  {offer.title}
-                </p>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {offer.distance}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Coins className="w-3 h-3" />
-                    <CoinLabel type={offer.rewardType} amount={offer.rewardAmount} />
-                  </span>
+          {DEMO_OFFERS.filter((o) => !isCampaignFeatured || o.id !== featured.id).map(
+            (offer, i) => (
+              <button
+                key={offer.id}
+                type="button"
+                onClick={() => handleViewOffer(offer)}
+                className="demo-glass-card w-full text-left p-4 flex gap-3 items-center demo-animate-fade-up"
+                style={{ animationDelay: `${0.1 + i * 0.05}s` }}
+              >
+                <img
+                  src={offer.imageUrl}
+                  alt=""
+                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground truncate">{offer.brandName}</p>
+                  <p className="text-xs text-muted-foreground truncate mb-1.5">{offer.title}</p>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {offer.distance}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Coins className="w-3 h-3" />
+                      <CoinLabel type={offer.rewardType} amount={offer.rewardAmount} />
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-            </button>
-          ))}
+                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              </button>
+            ),
+          )}
         </section>
       </div>
     </DemoShell>

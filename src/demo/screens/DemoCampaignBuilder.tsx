@@ -6,6 +6,7 @@ import {
   Clapperboard,
   CheckCircle2,
   Sparkles,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
@@ -32,6 +33,7 @@ export const DemoCampaignBuilder: React.FC = () => {
     setStudioPreviewReady,
     openMoneyMap,
     openFeedDemo,
+    openBrandDashboard,
   } = useDemoState();
 
   const budget = calculateCampaignBudget(
@@ -208,6 +210,19 @@ export const DemoCampaignBuilder: React.FC = () => {
             onClick={publishCampaignPreview}
           >
             Publish preview
+          </button>
+          {state.campaignPublished && (
+            <p className="text-xs text-green-400 text-center px-2">
+              Campaign linked to Feed — open Feed to start the earn loop preview.
+            </p>
+          )}
+          <button
+            type="button"
+            className="demo-cta demo-cta-secondary !min-h-0 py-3 text-sm flex items-center justify-center gap-2"
+            onClick={openBrandDashboard}
+          >
+            <BarChart3 className="w-4 h-4" />
+            Owner Analytics
           </button>
           <div className="grid grid-cols-2 gap-2">
             <button

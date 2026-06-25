@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { PRODUCT_MAP_DISCLAIMER, PRODUCT_MAP_NODES } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoRestartControl } from '../components/DemoRestartControl';
 import type { DemoStep } from '../demoTypes';
 
 interface NodeRoute {
@@ -18,22 +19,51 @@ const NODE_ROUTES: Record<string, NodeRoute[]> = {
     { label: 'Creator Profile', step: 'profile', tab: 'profile' },
     { label: 'Click-and-Earn', step: 'clickEarn', tab: 'feed' },
   ],
-  brands: [{ label: 'Campaign Builder', step: 'campaignBuilder', tab: 'create' }],
+  brands: [
+    { label: 'Campaign Builder', step: 'campaignBuilder', tab: 'create' },
+    { label: 'Brand Dashboard', step: 'brandDashboard', tab: 'create' },
+  ],
   merchants: [{ label: 'Wallet', step: 'wallet', tab: 'wallet' }],
   pop: [{ label: 'Feed', step: 'feed', tab: 'feed' }],
   wallet: [
     { label: 'Wallet', step: 'wallet', tab: 'wallet' },
     { label: 'Money Map', step: 'moneyMap', tab: 'system' },
   ],
-  'campaign-builder': [{ label: 'Campaign Builder', step: 'campaignBuilder', tab: 'create' }],
+  'campaign-builder': [
+    { label: 'Campaign Builder', step: 'campaignBuilder', tab: 'create' },
+    { label: 'Brand Dashboard', step: 'brandDashboard', tab: 'create' },
+  ],
   'creator-profile': [{ label: 'Creator Profile', step: 'profile', tab: 'profile' }],
   'money-movement': [{ label: 'Money Map', step: 'moneyMap', tab: 'system' }],
   elo: [{ label: 'ELO', step: 'elo', tab: 'feed' }],
+  'brand-dashboard': [
+    { label: 'Brand Dashboard', step: 'brandDashboard', tab: 'create' },
+    { label: 'Attention Analytics', step: 'attentionAnalytics', tab: 'create' },
+  ],
+  'attention-analytics': [
+    { label: 'Attention Analytics', step: 'attentionAnalytics', tab: 'create' },
+    { label: 'Brand Dashboard', step: 'brandDashboard', tab: 'create' },
+  ],
+  'published-campaign': [
+    { label: 'Campaign Builder', step: 'campaignBuilder', tab: 'create' },
+    { label: 'Feed', step: 'feed', tab: 'feed' },
+    { label: 'Brand Dashboard', step: 'brandDashboard', tab: 'create' },
+  ],
 };
 
 export const DemoProductMap: React.FC = () => {
-  const { state, setProductNode, goToStep, setNavTab, openClickEarn, openElo, openMoneyMap } =
-    useDemoState();
+  const {
+    state,
+    setProductNode,
+    goToStep,
+    setNavTab,
+    openClickEarn,
+    openElo,
+    openMoneyMap,
+    openBrandDashboard,
+    openAttentionAnalytics,
+    restartDemoToFeed,
+  } = useDemoState();
 
   const selected = PRODUCT_MAP_NODES.find((n) => n.id === state.selectedProductNode);
 
@@ -53,7 +83,10 @@ export const DemoProductMap: React.FC = () => {
             <Layers className="w-5 h-5 text-primary" />
             <h1 className="font-display text-2xl font-bold">Product Map</h1>
           </div>
-          <p className="text-sm text-muted-foreground">The verified attention economy</p>
+          <p className="text-sm text-muted-foreground">
+            The verified attention economy — users earn, creators monetize, brands fund, POP
+            verifies, wallet routes, analytics proves.
+          </p>
         </header>
 
         <div className="grid grid-cols-2 gap-2 mb-4">
@@ -103,7 +136,7 @@ export const DemoProductMap: React.FC = () => {
           </div>
         )}
 
-        <section className="demo-animate-fade-up">
+        <section className="demo-animate-fade-up mb-4">
           <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold px-1">
             Quick routes
           </p>
@@ -131,12 +164,16 @@ export const DemoProductMap: React.FC = () => {
             <button
               type="button"
               className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => {
-                setNavTab('profile');
-                goToStep('profile');
-              }}
+              onClick={() => openBrandDashboard()}
             >
-              Profile
+              Brand Dashboard
+            </button>
+            <button
+              type="button"
+              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
+              onClick={() => openAttentionAnalytics()}
+            >
+              Analytics
             </button>
             <button
               type="button"
@@ -164,7 +201,7 @@ export const DemoProductMap: React.FC = () => {
             </button>
             <button
               type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs col-span-2"
+              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
               onClick={() => openClickEarn()}
             >
               Click-and-Earn
@@ -172,7 +209,9 @@ export const DemoProductMap: React.FC = () => {
           </div>
         </section>
 
-        <p className="text-[10px] text-muted-foreground/80 text-center mt-6 leading-relaxed px-2">
+        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mb-4" />
+
+        <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed px-2">
           {PRODUCT_MAP_DISCLAIMER}
         </p>
       </div>

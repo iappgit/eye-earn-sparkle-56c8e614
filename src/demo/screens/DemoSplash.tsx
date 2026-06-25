@@ -3,9 +3,10 @@ import iLogo from '@/assets/i-logo.png';
 import { DEMO_TAGLINE } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoRestartControl } from '../components/DemoRestartControl';
 
 export const DemoSplash: React.FC = () => {
-  const { enterDemo } = useDemoState();
+  const { enterDemo, restartDemoToSplash } = useDemoState();
 
   return (
     <DemoShell showDisclaimer>
@@ -59,6 +60,10 @@ export const DemoSplash: React.FC = () => {
           >
             Enter Demo
           </button>
+
+          <div className="mt-6 max-w-xs w-full demo-animate-fade-up" style={{ animationDelay: '0.3s' }}>
+            <DemoRestartControl onRestart={restartDemoToSplash} variant="footer" />
+          </div>
         </div>
       </div>
     </DemoShell>
