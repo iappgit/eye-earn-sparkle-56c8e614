@@ -6,20 +6,27 @@ import { DemoOffer } from './screens/DemoOffer';
 import { DemoVerify } from './screens/DemoVerify';
 import { DemoReward } from './screens/DemoReward';
 import { DemoWallet } from './screens/DemoWallet';
+import { DemoMoneyMap } from './screens/DemoMoneyMap';
+import { DemoReceipt } from './screens/DemoReceipt';
 import { DemoPlaceholder } from './screens/DemoPlaceholder';
 import './styles/demo.css';
+
+const FOCUSED_STEPS = new Set([
+  'splash',
+  'offer',
+  'verify',
+  'reward',
+  'moneyMap',
+  'receipt',
+]);
 
 const DemoRouter: React.FC = () => {
   const { state } = useDemoState();
   const { currentStep, activeNavTab } = state;
 
-  // Nav tabs that aren't part of the linear flow
   if (
-    currentStep !== 'splash' &&
-    currentStep !== 'offer' &&
-    currentStep !== 'verify' &&
-    currentStep !== 'reward' &&
-    (activeNavTab === 'create' || activeNavTab === 'profile' || activeNavTab === 'system')
+    !FOCUSED_STEPS.has(currentStep) &&
+    (activeNavTab === 'create' || activeNavTab === 'profile')
   ) {
     return <DemoPlaceholder />;
   }
@@ -37,6 +44,10 @@ const DemoRouter: React.FC = () => {
       return <DemoReward />;
     case 'wallet':
       return <DemoWallet />;
+    case 'moneyMap':
+      return <DemoMoneyMap />;
+    case 'receipt':
+      return <DemoReceipt />;
     default:
       return <DemoSplash />;
   }

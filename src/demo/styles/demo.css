@@ -213,3 +213,42 @@
   padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, #0a0a0f 70%, transparent);
 }
+
+.demo-wallet-tabs {
+  -webkit-overflow-scrolling: touch;
+}
+
+.demo-wallet-tabs .scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.demo-action-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: hsl(0 0% 0% / 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 1rem;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.demo-action-sheet {
+  width: 100%;
+  max-width: 28rem;
+  background: linear-gradient(
+    160deg,
+    hsl(270 25% 11% / 0.98),
+    hsl(320 20% 9% / 0.98)
+  );
+  border: 1px solid hsl(270 50% 45% / 0.25);
+  border-radius: 1.5rem 1.5rem 1.25rem 1.25rem;
+  padding: 1.25rem;
+  box-shadow: 0 -8px 40px hsl(270 80% 30% / 0.2);
+}
+
+.demo-money-node-active {
+  border-color: hsl(270 95% 65% / 0.45);
+}

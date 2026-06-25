@@ -1,23 +1,18 @@
 import React from 'react';
-import { PlusCircle, User, Layers } from 'lucide-react';
+import { PlusCircle, User } from 'lucide-react';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 
 const PLACEHOLDER_COPY: Record<string, { title: string; body: string; icon: React.ReactNode }> = {
   create: {
     title: 'Create',
-    body: 'Campaign builder and content studio — coming in Phase 2 of the investor demo.',
+    body: 'Campaign builder and content studio — coming in Phase 3 of the investor demo.',
     icon: <PlusCircle className="w-10 h-10 text-primary" />,
   },
   profile: {
     title: 'Profile',
-    body: 'Creator profile and public identity — coming in Phase 2 of the investor demo.',
+    body: 'Creator profile and public identity — coming in Phase 3 of the investor demo.',
     icon: <User className="w-10 h-10 text-primary" />,
-  },
-  system: {
-    title: 'System',
-    body: 'Money movement map, product overview, and platform architecture — Phase 2.',
-    icon: <Layers className="w-10 h-10 text-primary" />,
   },
 };
 
@@ -26,7 +21,7 @@ export const DemoPlaceholder: React.FC = () => {
   const tab = state.activeNavTab;
   const content = PLACEHOLDER_COPY[tab];
 
-  if (!content || tab === 'feed' || tab === 'wallet') return null;
+  if (!content || tab === 'feed' || tab === 'wallet' || tab === 'system') return null;
 
   return (
     <DemoShell showNav>
