@@ -33,6 +33,7 @@ import {
   DEFAULT_CAMPAIGN_GATES,
   CLICK_EARN_DEFAULT,
   CAMPAIGN_OFFER_ID,
+  resetTransactionCounter,
 } from './demoData';
 
 const phase5Defaults = {
@@ -67,7 +68,7 @@ const phase3Defaults = {
 const initialState: DemoState = {
   currentStep: 'splash',
   activeNavTab: 'feed',
-  walletBalance: 240,
+  approvedAcoins: 0,
   icoinBalance: 18,
   pendingAcoins: 0,
   earnedThisSession: 0,
@@ -176,10 +177,13 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         ...state,
         icoinBalance: state.icoinBalance - state.clickEarnAmount,
         transactions: [tx, ...state.transactions],
-        clickEarnMode: 'confirmed',
-        clickEarnMessage: 'Simulated value sent to creator',
-        currentStep: 'clickEarn',
+        clickEarnMode: 'idle',
+        clickEarnAmount: CLICK_EARN_DEFAULT,
+        clickEarnMessage: null,
+        currentStep: 'wallet',
+        activeNavTab: 'wallet',
         walletTab: 'sent',
+        selectedReceiptId: tx.id,
       };
     }
     case 'CANCEL_CLICK_EARN':
@@ -251,7 +255,6 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         rewardClaimed: true,
         claimedOfferIds: [...state.claimedOfferIds, offer.id],
         earnedThisSession: state.earnedThisSession + offer.rewardAmount,
-        walletBalance: isAcoin ? state.walletBalance : state.walletBalance,
         pendingAcoins: isAcoin
           ? state.pendingAcoins + offer.rewardAmount
           : state.pendingAcoins,
@@ -265,12 +268,31 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         currentStep: 'reward',
       };
     }
+    case 'APPROVE_PENDING_ACOINS': {
+      if (state.pendingAcoins <= 0) return state;
+      const approvedAmount = state.pendingAcoins;
+      return {
+        ...state,
+        pendingAcoins: 0,
+        approvedAcoins: state.approvedAcoins + approvedAmount,
+        transactions: state.transactions.map((tx) =>
+          tx.status === 'pending-review' && tx.coinType === 'acoin'
+            ? {
+                ...tx,
+                status: 'completed-preview' as const,
+                copy: 'Review passed — ACoins approved for conversion preview.',
+              }
+            : tx,
+        ),
+        walletTab: 'review',
+      };
+    }
     case 'CONVERT_PREVIEW': {
-      if (state.walletBalance < CONVERT_AMOUNT) return state;
+      if (state.approvedAcoins < CONVERT_AMOUNT) return state;
       const tx = createConvertTransaction(CONVERT_AMOUNT);
       return {
         ...state,
-        walletBalance: state.walletBalance - CONVERT_AMOUNT,
+        approvedAcoins: state.approvedAcoins - CONVERT_AMOUNT,
         icoinBalance: state.icoinBalance + CONVERT_AMOUNT,
         transactions: [tx, ...state.transactions],
         activeWalletAction: null,
@@ -311,6 +333,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       };
     }
     case 'RESET_DEMO':
+      resetTransactionCounter();
       return {
         ...initialState,
         selectedOffer: getFeaturedOffer(),
@@ -330,7 +353,7 @@ interface DemoContextValue {
   setVerificationProgress: (progress: number) => void;
   setPopScore: (score: number) => void;
   claimReward: () => void;
-  resetDemo: () => void;
+  approvePendingAcoins: () => void;
   enterDemo: () => void;
   setWalletTab: (tab: WalletTab) => void;
   setMoneyNode: (node: string | null) => void;
@@ -412,8 +435,8 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     dispatch({ type: 'CLAIM_REWARD' });
   }, []);
 
-  const resetDemo = useCallback(() => {
-    dispatch({ type: 'RESET_DEMO', target: 'splash' });
+  const approvePendingAcoins = useCallback(() => {
+    dispatch({ type: 'APPROVE_PENDING_ACOINS' });
   }, []);
 
   const restartDemoToSplash = useCallback(() => {
@@ -590,7 +613,7 @@ export const DemoStateProvider: React.FC<{ children: React.ReactNode }> = ({
     setVerificationProgress,
     setPopScore,
     claimReward,
-    resetDemo,
+    approvePendingAcoins,
     enterDemo,
     setWalletTab,
     setMoneyNode,

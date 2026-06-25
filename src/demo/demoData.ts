@@ -487,7 +487,7 @@ export function getAttentionAnalyticsData(state: {
 export interface EloContext {
   icoinBalance: number;
   pendingAcoins: number;
-  walletBalance: number;
+  approvedAcoins: number;
   earnedThisSession: number;
   rewardClaimed: boolean;
   selectedOffer: DemoOffer | null;
@@ -650,6 +650,10 @@ export function getFeaturedOffer(): DemoOffer {
 
 let txCounter = 0;
 
+export function resetTransactionCounter(): void {
+  txCounter = 0;
+}
+
 export function nextSimulatedId(): string {
   txCounter += 1;
   return `SIM-${Date.now().toString(36).toUpperCase()}-${txCounter.toString().padStart(3, '0')}`;
@@ -696,7 +700,7 @@ export function createConvertTransaction(amount: number): DemoTransaction {
     status: 'completed-preview',
     direction: 'in',
     route: 'ACoins layer → iCoins layer',
-    copy: 'Converted verified demo value into usable wallet balance.',
+    copy: 'Converted approved demo ACoins into available iCoin balance.',
   };
 }
 
@@ -847,7 +851,7 @@ export function getEloResponse(mode: EloModeKey, promptId: string, ctx?: EloCont
 
   if (promptId === 'summarize-wallet') {
     contextLines.push(
-      `Your wallet currently shows ${ctx.icoinBalance} iCoins usable and ${ctx.pendingAcoins} ACoins pending review (${ctx.walletBalance} A attention balance).`,
+      `Your wallet currently shows ${ctx.icoinBalance} available iCoins, ${ctx.pendingAcoins} pending ACoins awaiting review, and ${ctx.approvedAcoins} approved ACoins ready to convert.`,
     );
     if (ctx.earnedThisSession > 0) {
       contextLines.push(`Earned this session (preview): ${ctx.earnedThisSession} value units.`);

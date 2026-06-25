@@ -18,7 +18,6 @@ import { DemoShell } from '../components/DemoShell';
 import { DemoWalletTabs } from '../components/DemoWalletTabs';
 import { DemoActionSheet } from '../components/DemoActionSheet';
 import { DemoRestartControl } from '../components/DemoRestartControl';
-import { DemoRestartControl } from '../components/DemoRestartControl';
 import {
   WALLET_DISCLAIMER,
   ACOIN_EXPLANATION,
@@ -88,13 +87,14 @@ export const DemoWallet: React.FC = () => {
     setWalletAction,
     openReceipt,
     openMoneyMap,
-    goToStep,
     restartDemoToFeed,
+    approvePendingAcoins,
   } = useDemoState();
 
   const { walletTab, transactions } = state;
 
   const latestTx = transactions[0] ?? null;
+  const hasTransactions = transactions.length > 0;
 
   const filteredTx = (() => {
     switch (walletTab) {
@@ -134,7 +134,6 @@ export const DemoWallet: React.FC = () => {
     }
     if (action === 'receipts') {
       if (latestTx) openReceipt(latestTx.id);
-      else goToStep('receipt');
       return;
     }
     setWalletAction(action);
@@ -162,23 +161,28 @@ export const DemoWallet: React.FC = () => {
           <div className="space-y-4 demo-animate-fade-up">
             {/* Balances */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="demo-glass-card demo-glow-ring p-4">
-                <p className="text-xs text-muted-foreground mb-1">ACoins</p>
+              <div className="demo-glass-card p-4">
+                <p className="text-xs text-muted-foreground mb-1">Pending ACoins</p>
                 <p className="font-display text-2xl font-bold gradient-text">
-                  {state.walletBalance}
+                  {state.pendingAcoins}
                 </p>
-                {state.pendingAcoins > 0 && (
-                  <p className="text-xs text-amber-400 mt-1">
-                    +{state.pendingAcoins} pending review
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
               </div>
               <div className="demo-glass-card p-4">
-                <p className="text-xs text-muted-foreground mb-1">iCoins</p>
+                <p className="text-xs text-muted-foreground mb-1">Approved ACoins</p>
+                <p className="font-display text-2xl font-bold gradient-text">
+                  {state.approvedAcoins}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Ready to convert</p>
+              </div>
+              <div className="demo-glass-card p-4 col-span-2">
+                <p className="text-xs text-muted-foreground mb-1">Available iCoins</p>
                 <p className="font-display text-2xl font-bold gradient-text-gold">
                   {state.icoinBalance}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">Usable balance</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Simulated usable balance — not real money
+                </p>
               </div>
             </div>
 
@@ -236,18 +240,31 @@ export const DemoWallet: React.FC = () => {
                 Actions
               </h2>
               <div className="grid grid-cols-3 gap-2">
-                {ACTION_GRID.map((item) => (
+                {ACTION_GRID.map((item) => {
+                  const isReceipts = item.action === 'receipts';
+                  const disabled = isReceipts && !hasTransactions;
+                  return (
                   <button
                     key={item.label}
                     type="button"
                     onClick={() => handleAction(item.action)}
-                    className="demo-glass-card p-3 flex flex-col items-center gap-2 hover:border-primary/30 transition-colors"
+                    disabled={disabled}
+                    className={cn(
+                      'demo-glass-card p-3 flex flex-col items-center gap-2 hover:border-primary/30 transition-colors',
+                      disabled && 'opacity-40 cursor-not-allowed hover:border-transparent',
+                    )}
                   >
                     <span className="text-primary">{item.icon}</span>
                     <span className="text-xs font-medium">{item.label}</span>
                   </button>
-                ))}
+                  );
+                })}
               </div>
+              {!hasTransactions && (
+                <p className="text-xs text-muted-foreground text-center mt-2 px-2">
+                  No receipts yet. Complete an earning, pay, tip, or Click-and-Earn preview first.
+                </p>
+              )}
             </section>
           </div>
         )}
@@ -255,18 +272,18 @@ export const DemoWallet: React.FC = () => {
         {walletTab === 'available' && (
           <div className="space-y-4 demo-animate-fade-up">
             <div className="demo-glass-card demo-glow-ring p-5 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Usable iCoins</p>
+              <p className="text-xs text-muted-foreground mb-1">Available iCoins</p>
               <p className="font-display text-4xl font-bold gradient-text-gold">
                 {state.icoinBalance}
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                Available for pay, tip, and withdraw previews
+                Simulated usable balance for pay, tip, and withdraw previews
               </p>
             </div>
             <div className="demo-glass-card p-4">
-              <p className="text-xs text-muted-foreground mb-1">Verified ACoins</p>
+              <p className="text-xs text-muted-foreground mb-1">Approved ACoins</p>
               <p className="font-display text-xl font-bold gradient-text">
-                {state.walletBalance}
+                {state.approvedAcoins}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Convert to iCoins via action preview
@@ -322,6 +339,15 @@ export const DemoWallet: React.FC = () => {
                 simulated approval. No real settlement occurs.
               </p>
             </div>
+            {state.pendingAcoins > 0 && (
+              <button
+                type="button"
+                className="demo-cta w-full !min-h-11 text-sm"
+                onClick={approvePendingAcoins}
+              >
+                Approve pending preview ({state.pendingAcoins} ACoins)
+              </button>
+            )}
             <TxList
               txs={filteredTx}
               onOpen={openReceipt}

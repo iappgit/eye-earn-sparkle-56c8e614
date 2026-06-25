@@ -5,8 +5,18 @@ import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 
 export const DemoOffer: React.FC = () => {
-  const { state, goToStep } = useDemoState();
+  const { state, goToStep, setNavTab } = useDemoState();
   const offer = state.selectedOffer;
+  const isClaimed = offer ? state.claimedOfferIds.includes(offer.id) : false;
+
+  const handlePrimaryAction = () => {
+    if (isClaimed) {
+      setNavTab('wallet');
+      goToStep('wallet');
+      return;
+    }
+    goToStep('verify');
+  };
 
   if (!offer) {
     return (
@@ -107,9 +117,9 @@ export const DemoOffer: React.FC = () => {
         <button
           type="button"
           className="demo-cta max-w-lg mx-auto"
-          onClick={() => goToStep('verify')}
+          onClick={handlePrimaryAction}
         >
-          Watch · Verify · Earn
+          {isClaimed ? 'View in Wallet' : 'Watch · Verify · Earn'}
         </button>
       </div>
     </DemoShell>

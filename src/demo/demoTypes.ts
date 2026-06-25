@@ -118,7 +118,7 @@ export interface CampaignGates {
 export interface DemoState {
   currentStep: DemoStep;
   activeNavTab: DemoNavTab;
-  walletBalance: number;
+  approvedAcoins: number;
   icoinBalance: number;
   pendingAcoins: number;
   earnedThisSession: number;
@@ -164,6 +164,7 @@ export type DemoAction =
   | { type: 'SET_MONEY_NODE'; node: string | null }
   | { type: 'SELECT_RECEIPT'; id: string | null }
   | { type: 'SET_WALLET_ACTION'; action: WalletAction | null }
+  | { type: 'APPROVE_PENDING_ACOINS' }
   | { type: 'CONVERT_PREVIEW' }
   | { type: 'PAY_PREVIEW' }
   | { type: 'WITHDRAW_PREVIEW' }

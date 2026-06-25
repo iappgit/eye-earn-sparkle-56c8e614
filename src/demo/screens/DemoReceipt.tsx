@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, Map, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
@@ -17,6 +17,14 @@ export const DemoReceipt: React.FC = () => {
     goToStep('wallet');
     setNavTab('wallet');
   };
+
+  useEffect(() => {
+    if (!tx) {
+      selectReceipt(null);
+      goToStep('wallet');
+      setNavTab('wallet');
+    }
+  }, [tx, selectReceipt, goToStep, setNavTab]);
 
   if (!tx) {
     return (

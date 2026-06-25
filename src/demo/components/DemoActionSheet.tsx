@@ -42,13 +42,13 @@ export const DemoActionSheet: React.FC = () => {
     convert: {
       title: 'Convert preview',
       description:
-        'Convert verified ACoins into usable iCoins — internal value routing only.',
+        'Convert approved ACoins into available iCoins — internal value routing only.',
       amount: CONVERT_AMOUNT,
       coinLabel: `${CONVERT_AMOUNT} ACoins → ${CONVERT_AMOUNT} iCoins`,
-      canConfirm: state.walletBalance >= CONVERT_AMOUNT,
+      canConfirm: state.approvedAcoins >= CONVERT_AMOUNT,
       disabledReason:
-        state.walletBalance < CONVERT_AMOUNT
-          ? `Need at least ${CONVERT_AMOUNT} verified ACoins`
+        state.approvedAcoins < CONVERT_AMOUNT
+          ? `Need at least ${CONVERT_AMOUNT} approved ACoins`
           : undefined,
       confirmLabel: 'Confirm conversion preview',
       onConfirm: confirmConvert,

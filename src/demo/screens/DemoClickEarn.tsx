@@ -6,7 +6,7 @@ import {
   CLICK_EARN_MAX,
   CLICK_EARN_MIN,
   CREATOR_NAME,
-  getFeaturedOffer,
+  getActiveFeaturedOffer,
 } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
@@ -24,7 +24,7 @@ export const DemoClickEarn: React.FC = () => {
   } = useDemoState();
 
   const { clickEarnMode, clickEarnAmount, clickEarnMessage, icoinBalance } = state;
-  const featured = getFeaturedOffer();
+  const featured = getActiveFeaturedOffer(state);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearHoldTimer = useCallback(() => {
@@ -88,7 +88,7 @@ export const DemoClickEarn: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-transparent" />
             <div className="absolute bottom-3 left-3 right-3">
-              <p className="text-xs text-white/70">Content preview</p>
+              <p className="text-xs text-white/70">{featured.brandName}</p>
               <p className="text-sm font-semibold text-white line-clamp-1">{featured.title}</p>
             </div>
           </div>

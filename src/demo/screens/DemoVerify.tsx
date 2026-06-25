@@ -11,16 +11,25 @@ export const DemoVerify: React.FC = () => {
   const {
     state,
     goToStep,
+    setNavTab,
     setVerificationProgress,
     setPopScore,
     claimReward,
   } = useDemoState();
   const offer = state.selectedOffer;
+  const isAlreadyClaimed =
+    offer != null && state.claimedOfferIds.includes(offer.id);
   const [phase, setPhase] = useState<'watching' | 'scoring' | 'complete'>('watching');
   const completedRef = useRef(false);
 
   useEffect(() => {
-    if (!offer) return;
+    if (!offer || !isAlreadyClaimed) return;
+    setNavTab('wallet');
+    goToStep('wallet');
+  }, [offer, isAlreadyClaimed, goToStep, setNavTab]);
+
+  useEffect(() => {
+    if (!offer || isAlreadyClaimed) return;
 
     completedRef.current = false;
     setPhase('watching');
@@ -55,7 +64,7 @@ export const DemoVerify: React.FC = () => {
     }, TICK_MS);
 
     return () => clearInterval(interval);
-  }, [offer, claimReward, setVerificationProgress, setPopScore]);
+  }, [offer, isAlreadyClaimed, claimReward, setVerificationProgress, setPopScore]);
 
   if (!offer) {
     return (
@@ -64,6 +73,18 @@ export const DemoVerify: React.FC = () => {
           <button type="button" className="demo-cta max-w-xs" onClick={() => goToStep('feed')}>
             Back to feed
           </button>
+        </div>
+      </DemoShell>
+    );
+  }
+
+  if (isAlreadyClaimed) {
+    return (
+      <DemoShell>
+        <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6 text-center">
+          <p className="text-muted-foreground mb-4">
+            This offer was already claimed. Opening wallet…
+          </p>
         </div>
       </DemoShell>
     );

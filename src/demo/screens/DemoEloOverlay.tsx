@@ -31,7 +31,7 @@ export const DemoEloOverlay: React.FC = () => {
     ? getEloResponse(eloMode, selectedEloPrompt, {
         icoinBalance: state.icoinBalance,
         pendingAcoins: state.pendingAcoins,
-        walletBalance: state.walletBalance,
+        approvedAcoins: state.approvedAcoins,
         earnedThisSession: state.earnedThisSession,
         rewardClaimed: state.rewardClaimed,
         selectedOffer: state.selectedOffer,
