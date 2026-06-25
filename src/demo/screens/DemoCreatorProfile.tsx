@@ -10,14 +10,14 @@ import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoMetricCard } from '../components/DemoMetricCard';
 import { DemoPlatformToggle } from '../components/DemoPlatformToggle';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import {
   CREATOR_NAME,
   CREATOR_HANDLE,
   CREATOR_BIO,
-  CREATOR_STATS,
   CREATOR_CONTENT,
-  CREATOR_DISCLAIMER,
   PLATFORM_META,
+  getCreatorProfileStats,
 } from '../demoData';
 import type { CreatorTab } from '../demoTypes';
 
@@ -28,13 +28,8 @@ const CREATOR_TABS: { id: CreatorTab; label: string }[] = [
 ];
 
 export const DemoCreatorProfile: React.FC = () => {
-  const {
-    state,
-    setCreatorTab,
-    openTipFromProfile,
-  } = useDemoState();
-
-  const connectedCount = Object.values(state.connectedPlatforms).filter(Boolean).length;
+  const { state, setCreatorTab, openTipFromProfile } = useDemoState();
+  const stats = getCreatorProfileStats(state);
 
   return (
     <DemoShell showNav>
@@ -42,71 +37,79 @@ export const DemoCreatorProfile: React.FC = () => {
         className="px-4 pt-4 pb-4"
         style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
       >
-        {/* Header */}
-        <header className="mb-5 demo-animate-fade-up">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-16 h-16 rounded-2xl demo-glass-card demo-glow-ring flex items-center justify-center flex-shrink-0">
-              <span className="font-display text-2xl font-bold gradient-text">RS</span>
+        <header className="mb-4 demo-animate-fade-up">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-14 h-14 rounded-2xl demo-glass-card demo-glow-ring flex items-center justify-center flex-shrink-0">
+              <span className="font-display text-xl font-bold gradient-text">RS</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-xl font-bold truncate">{CREATOR_NAME}</h1>
-              <p className="text-sm text-primary">{CREATOR_HANDLE}</p>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h1 className="font-display text-lg font-bold truncate">{CREATOR_NAME}</h1>
+                  <p className="text-xs text-primary">{CREATOR_HANDLE}</p>
+                </div>
+                <DemoPreviewChip />
+              </div>
+              <p className="text-[0.65rem] text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
                 {CREATOR_BIO}
               </p>
             </div>
           </div>
 
-          {/* Platform chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {(Object.keys(PLATFORM_META) as Array<keyof typeof PLATFORM_META>).map(
-              (id) => {
-                const meta = PLATFORM_META[id];
-                const connected = state.connectedPlatforms[id];
-                return (
-                  <span
-                    key={id}
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
-                      connected
-                        ? 'border-primary/40 bg-primary/10 text-primary'
-                        : 'border-white/10 bg-white/5 text-muted-foreground opacity-60',
-                    )}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: meta.color }}
-                    />
-                    {meta.label}
-                  </span>
-                );
-              },
-            )}
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <DemoMetricCard label="Verified views" value={CREATOR_STATS.verifiedViews} />
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <DemoMetricCard
-              label="Earned ACoins"
-              value={CREATOR_STATS.earnedAcoins}
+              label="Verified views (session)"
+              value={String(stats.verifiedViewsSession)}
               highlight
             />
-            <DemoMetricCard label="Tips received" value={CREATOR_STATS.tipsReceived} />
-            <DemoMetricCard label="Active campaigns" value={CREATOR_STATS.activeCampaigns} />
+            <DemoMetricCard
+              label="Tips / value received"
+              value={`${stats.tipsReceived} i`}
+            />
+            <DemoMetricCard
+              label="Platforms connected"
+              value={`${stats.connectedCount}/4`}
+            />
+            <DemoMetricCard
+              label="Session earned"
+              value={String(stats.sessionEarned)}
+            />
+          </div>
+
+          <div className="demo-chip-scroll -mx-1 px-1 mb-1">
+            {(Object.keys(PLATFORM_META) as Array<keyof typeof PLATFORM_META>).map((id) => {
+              const meta = PLATFORM_META[id];
+              const connected = state.connectedPlatforms[id];
+              return (
+                <span
+                  key={id}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium border flex-shrink-0',
+                    connected
+                      ? 'border-primary/40 bg-primary/10 text-primary'
+                      : 'border-white/10 bg-white/5 text-muted-foreground opacity-60',
+                  )}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: meta.color }}
+                  />
+                  {meta.label}
+                </span>
+              );
+            })}
           </div>
         </header>
 
-        {/* Sub-tabs */}
-        <div className="demo-wallet-tabs -mx-4 px-4 mb-4">
-          <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="demo-wallet-tabs -mx-4 px-4 mb-3">
+          <div className="demo-chip-scroll -mx-1 px-1">
             {CREATOR_TABS.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setCreatorTab(tab.id)}
                 className={cn(
-                  'flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all',
+                  'flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all min-h-[2.5rem]',
                   state.activeCreatorTab === tab.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-white/5 text-muted-foreground border border-white/10',
@@ -119,28 +122,23 @@ export const DemoCreatorProfile: React.FC = () => {
         </div>
 
         {state.activeCreatorTab === 'profile' && (
-          <div className="space-y-3 demo-animate-fade-up">
-            <div className="demo-glass-card p-4">
+          <div className="space-y-2.5 demo-animate-fade-up">
+            <div className="demo-glass-card p-3">
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">Creator dashboard preview</span>
+                <span className="text-sm font-semibold">Creator dashboard</span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                Simulated analytics across {connectedCount} connected platform
-                {connectedCount !== 1 ? 's' : ''}. Verified attention drives
-                internal ACoin value — not cash equivalents.
-              </p>
-              <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div className="demo-glass-card p-2 !rounded-lg">
-                  <p className="text-xs text-muted-foreground">7d views</p>
+                  <p className="text-[0.6rem] text-muted-foreground">7d views</p>
                   <p className="font-bold text-sm">24.2K</p>
                 </div>
                 <div className="demo-glass-card p-2 !rounded-lg">
-                  <p className="text-xs text-muted-foreground">Engagement</p>
+                  <p className="text-[0.6rem] text-muted-foreground">Engagement</p>
                   <p className="font-bold text-sm">8.4%</p>
                 </div>
                 <div className="demo-glass-card p-2 !rounded-lg">
-                  <p className="text-xs text-muted-foreground">Avg POP</p>
+                  <p className="text-[0.6rem] text-muted-foreground">Avg POP</p>
                   <p className="font-bold text-sm">91%</p>
                 </div>
               </div>
@@ -149,13 +147,13 @@ export const DemoCreatorProfile: React.FC = () => {
             <ActionCard
               icon={<Heart className="w-5 h-5 text-primary" />}
               title="Tip creator preview"
-              description="Route to wallet tip preview for Rafaela Studio."
+              description="Route to wallet tip preview."
               onClick={openTipFromProfile}
             />
             <ActionCard
               icon={<Link2 className="w-5 h-5 text-primary" />}
-              title="Connect platforms preview"
-              description="Toggle simulated YouTube, TikTok, Instagram, Twitch."
+              title="Connect platforms"
+              description="Toggle simulated platform links."
               onClick={() => setCreatorTab('platforms')}
             />
           </div>
@@ -163,7 +161,7 @@ export const DemoCreatorProfile: React.FC = () => {
 
         {state.activeCreatorTab === 'platforms' && (
           <div className="demo-animate-fade-up">
-            <DemoPlatformToggle />
+            <DemoPlatformToggle compact />
           </div>
         )}
 
@@ -189,15 +187,15 @@ export const DemoCreatorProfile: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-1.5">
                       <span
-                        className="text-[0.6rem] font-medium px-1 py-0.5 rounded"
+                        className="text-[0.55rem] font-medium px-1 py-0.5 rounded"
                         style={{ backgroundColor: `${meta.color}33`, color: meta.color }}
                       >
                         {meta.label}
                       </span>
-                      <p className="text-[0.6rem] text-white/80 mt-0.5 truncate">
+                      <p className="text-[0.55rem] text-white/80 mt-0.5 truncate">
                         {item.verifiedViews} views
                       </p>
-                      <p className="text-[0.6rem] text-primary font-medium">
+                      <p className="text-[0.55rem] text-primary font-medium">
                         +{item.earnedPreview} A
                       </p>
                     </div>
@@ -205,17 +203,8 @@ export const DemoCreatorProfile: React.FC = () => {
                 );
               })}
             </div>
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              Simulated cross-platform content grid. Earned values are previews only.
-            </p>
           </div>
         )}
-
-        <div className="demo-glass-card p-4 border border-muted/30 mt-6">
-          <p className="text-xs text-muted-foreground leading-relaxed text-center">
-            {CREATOR_DISCLAIMER}
-          </p>
-        </div>
       </div>
     </DemoShell>
   );
@@ -236,9 +225,9 @@ function ActionCard({
     <button
       type="button"
       onClick={onClick}
-      className="demo-glass-card w-full p-4 flex items-center gap-3 text-left hover:border-primary/30 transition-colors"
+      className="demo-glass-card w-full p-3 flex items-center gap-3 text-left hover:border-primary/30 transition-colors min-h-[3.5rem]"
     >
-      <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+      <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
         {icon}
       </div>
       <div className="flex-1 min-w-0">

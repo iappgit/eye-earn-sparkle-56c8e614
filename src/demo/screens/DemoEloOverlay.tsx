@@ -1,7 +1,8 @@
 import React from 'react';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ELO_DISCLAIMER, ELO_PROMPTS, getEloResponse } from '../demoData';
+import { ELO_PROMPTS, getEloResponse } from '../demoData';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import type { EloMode } from '../demoTypes';
@@ -176,9 +177,9 @@ export const DemoEloOverlay: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-[10px] text-muted-foreground/80 text-center mt-6 leading-relaxed px-2">
-            {ELO_DISCLAIMER}
-          </p>
+          <div className="flex justify-center mt-4">
+            <DemoPreviewChip label="Simulated assistant" />
+          </div>
         </div>
       </div>
     </DemoShell>

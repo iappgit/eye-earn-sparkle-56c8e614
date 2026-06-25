@@ -10,7 +10,7 @@ const NAV_ITEMS: { id: DemoNavTab; label: string; icon: React.ReactNode }[] = [
   { id: 'wallet', label: 'Wallet', icon: <Wallet className="w-5 h-5" /> },
   { id: 'create', label: 'Create', icon: <PlusCircle className="w-5 h-5" /> },
   { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> },
-  { id: 'system', label: 'System', icon: <Layers className="w-5 h-5" /> },
+  { id: 'system', label: 'Map', icon: <Layers className="w-5 h-5" /> },
 ];
 
 export const DemoBottomNav: React.FC = () => {

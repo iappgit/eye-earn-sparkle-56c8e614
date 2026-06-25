@@ -3,7 +3,8 @@ import { ArrowLeft, Map, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
-import { WALLET_DISCLAIMER, getStatusLabel } from '../demoData';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
+import { getStatusLabel } from '../demoData';
 
 export const DemoReceipt: React.FC = () => {
   const { state, goToStep, setNavTab, openMoneyMap, selectReceipt } = useDemoState();
@@ -43,7 +44,7 @@ export const DemoReceipt: React.FC = () => {
   const isIn = tx.direction === 'in';
 
   return (
-    <DemoShell showDisclaimer>
+    <DemoShell showDisclaimer={false}>
       <div
         className="px-4 pt-4 pb-28"
         style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
@@ -51,10 +52,13 @@ export const DemoReceipt: React.FC = () => {
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-muted-foreground mb-5 hover:text-foreground"
+          className="flex items-center justify-between gap-2 text-sm text-muted-foreground mb-5 hover:text-foreground w-full"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to wallet
+          <span className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to wallet
+          </span>
+          <DemoPreviewChip />
         </button>
 
         <div className="demo-animate-scale-in">
@@ -98,12 +102,6 @@ export const DemoReceipt: React.FC = () => {
           </div>
 
           <p className="text-sm font-medium text-center mb-6">{tx.label}</p>
-
-          <div className="demo-glass-card p-4 border border-muted/30 mb-4">
-            <p className="text-xs text-muted-foreground leading-relaxed text-center">
-              {WALLET_DISCLAIMER}
-            </p>
-          </div>
         </div>
       </div>
 

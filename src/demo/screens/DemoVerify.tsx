@@ -3,6 +3,7 @@ import { Eye, CheckCircle2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 
 const VERIFY_DURATION_MS = 4500;
 const TICK_MS = 80;
@@ -94,7 +95,7 @@ export const DemoVerify: React.FC = () => {
   const popScore = state.popScore;
 
   return (
-    <DemoShell showDisclaimer>
+    <DemoShell showDisclaimer={false}>
       <div className="flex flex-col min-h-[100dvh]">
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <button
@@ -108,7 +109,7 @@ export const DemoVerify: React.FC = () => {
           <span className="text-xs font-medium text-primary uppercase tracking-wider">
             Simulated verification
           </span>
-          <div className="w-10" />
+          <DemoPreviewChip />
         </div>
 
         {/* Video preview area */}

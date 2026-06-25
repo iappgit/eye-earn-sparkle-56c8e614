@@ -1,8 +1,8 @@
 import React, { useCallback, useRef } from 'react';
 import { ArrowLeft, Heart, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import {
-  CLICK_EARN_DISCLAIMER,
   CLICK_EARN_MAX,
   CLICK_EARN_MIN,
   CREATOR_NAME,
@@ -74,7 +74,10 @@ export const DemoClickEarn: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-display text-xl font-bold">Click-and-Earn</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-xl font-bold">Click-and-Earn</h1>
+              <DemoPreviewChip />
+            </div>
             <p className="text-xs text-muted-foreground">Hold-to-value creator offer</p>
           </div>
         </header>
@@ -239,9 +242,7 @@ export const DemoClickEarn: React.FC = () => {
           </div>
         )}
 
-        <p className="text-[10px] text-muted-foreground/80 text-center mt-6 leading-relaxed px-2">
-          {CLICK_EARN_DISCLAIMER}
-        </p>
+
       </div>
     </DemoShell>
   );

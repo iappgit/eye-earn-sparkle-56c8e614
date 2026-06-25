@@ -3,7 +3,8 @@ import { ArrowLeft, Map, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
-import { MONEY_MAP_NODES, WALLET_DISCLAIMER } from '../demoData';
+import { MONEY_MAP_NODES } from '../demoData';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 
 export const DemoMoneyMap: React.FC = () => {
   const { state, goToStep, setNavTab, setMoneyNode } = useDemoState();
@@ -96,10 +97,8 @@ export const DemoMoneyMap: React.FC = () => {
           </div>
         )}
 
-        <div className="demo-glass-card p-4 border border-muted/30">
-          <p className="text-xs text-muted-foreground leading-relaxed text-center">
-            {WALLET_DISCLAIMER}
-          </p>
+        <div className="flex justify-center mt-4">
+          <DemoPreviewChip />
         </div>
       </div>
     </DemoShell>

@@ -1,10 +1,11 @@
 import React from 'react';
 import { ChevronRight, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PRODUCT_MAP_DISCLAIMER, PRODUCT_MAP_NODES } from '../demoData';
+import { PRODUCT_MAP_NODES } from '../demoData';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoRestartControl } from '../components/DemoRestartControl';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import type { DemoStep } from '../demoTypes';
 
 interface NodeRoute {
@@ -57,11 +58,10 @@ export const DemoProductMap: React.FC = () => {
     setProductNode,
     goToStep,
     setNavTab,
-    openClickEarn,
-    openElo,
-    openMoneyMap,
     openBrandDashboard,
     openAttentionAnalytics,
+    openMoneyMap,
+    openElo,
     restartDemoToFeed,
   } = useDemoState();
 
@@ -75,17 +75,19 @@ export const DemoProductMap: React.FC = () => {
   return (
     <DemoShell showNav>
       <div
-        className="px-4 pt-4 pb-6 demo-safe-pad-nav"
+        className="px-4 pt-4 pb-6"
         style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
       >
-        <header className="mb-5 demo-animate-fade-up">
-          <div className="flex items-center gap-2 mb-1">
-            <Layers className="w-5 h-5 text-primary" />
-            <h1 className="font-display text-2xl font-bold">Product Map</h1>
+        <header className="mb-4 demo-animate-fade-up">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <div className="flex items-center gap-2 min-w-0">
+              <Layers className="w-5 h-5 text-primary flex-shrink-0" />
+              <h1 className="font-display text-2xl font-bold truncate">Product Map</h1>
+            </div>
+            <DemoPreviewChip />
           </div>
-          <p className="text-sm text-muted-foreground">
-            The verified attention economy — users earn, creators monetize, brands fund, POP
-            verifies, wallet routes, analytics proves.
+          <p className="text-xs text-muted-foreground">
+            System map — users earn, creators monetize, brands fund, POP verifies.
           </p>
         </header>
 
@@ -98,12 +100,12 @@ export const DemoProductMap: React.FC = () => {
                 setProductNode(state.selectedProductNode === node.id ? null : node.id)
               }
               className={cn(
-                'demo-glass-card p-3 text-left demo-animate-fade-up min-h-[5.5rem]',
+                'demo-glass-card p-3 text-left demo-animate-fade-up min-h-[5rem]',
                 state.selectedProductNode === node.id && 'demo-glow-ring border-primary/40',
               )}
               style={{ animationDelay: `${i * 0.03}s` }}
             >
-              <span className="text-lg mb-1 block">{node.icon}</span>
+              <span className="text-base mb-0.5 block">{node.icon}</span>
               <p className="font-semibold text-xs leading-tight">{node.title}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
                 {node.subtitle}
@@ -113,20 +115,20 @@ export const DemoProductMap: React.FC = () => {
         </div>
 
         {selected && (
-          <div className="demo-glass-card p-4 mb-4 demo-animate-fade-up">
-            <p className="font-semibold text-sm mb-1">
+          <div className="demo-glass-card p-3 mb-4 demo-animate-fade-up">
+            <p className="font-semibold text-sm mb-0.5">
               {selected.icon} {selected.title}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+            <p className="text-xs text-muted-foreground leading-relaxed mb-2.5 line-clamp-2">
               {selected.explanation}
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="demo-chip-scroll -mx-1 px-1">
               {(NODE_ROUTES[selected.id] ?? []).map((route) => (
                 <button
                   key={route.label}
                   type="button"
                   onClick={() => navigate(route)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs bg-primary/15 text-primary border border-primary/25"
+                  className="demo-route-chip inline-flex items-center gap-1"
                 >
                   {route.label}
                   <ChevronRight className="w-3 h-3" />
@@ -137,13 +139,13 @@ export const DemoProductMap: React.FC = () => {
         )}
 
         <section className="demo-animate-fade-up mb-4">
-          <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold px-1">
+          <p className="text-[0.65rem] text-muted-foreground mb-2 uppercase tracking-wider font-semibold px-1">
             Quick routes
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="demo-chip-scroll -mx-4 px-4">
             <button
               type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
+              className="demo-route-chip"
               onClick={() => {
                 setNavTab('feed');
                 goToStep('feed');
@@ -153,7 +155,7 @@ export const DemoProductMap: React.FC = () => {
             </button>
             <button
               type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
+              className="demo-route-chip"
               onClick={() => {
                 setNavTab('wallet');
                 goToStep('wallet');
@@ -163,57 +165,30 @@ export const DemoProductMap: React.FC = () => {
             </button>
             <button
               type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => openBrandDashboard()}
-            >
-              Brand Dashboard
-            </button>
-            <button
-              type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => openAttentionAnalytics()}
-            >
-              Analytics
-            </button>
-            <button
-              type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
+              className="demo-route-chip"
               onClick={() => {
                 setNavTab('create');
                 goToStep('campaignBuilder');
               }}
             >
-              Create
+              Campaign
             </button>
-            <button
-              type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => openMoneyMap()}
-            >
+            <button type="button" className="demo-route-chip" onClick={openBrandDashboard}>
+              Brand Dashboard
+            </button>
+            <button type="button" className="demo-route-chip" onClick={openAttentionAnalytics}>
+              Analytics
+            </button>
+            <button type="button" className="demo-route-chip" onClick={openMoneyMap}>
               Money Map
             </button>
-            <button
-              type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => openElo()}
-            >
+            <button type="button" className="demo-route-chip" onClick={openElo}>
               ELO
-            </button>
-            <button
-              type="button"
-              className="demo-cta-secondary demo-cta !min-h-10 text-xs"
-              onClick={() => openClickEarn()}
-            >
-              Click-and-Earn
             </button>
           </div>
         </section>
 
-        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mb-4" />
-
-        <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed px-2">
-          {PRODUCT_MAP_DISCLAIMER}
-        </p>
+        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mb-2" />
       </div>
     </DemoShell>
   );

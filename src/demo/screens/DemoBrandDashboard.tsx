@@ -7,8 +7,8 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import {
-  BRAND_DASHBOARD_DISCLAIMER,
   CAMPAIGN_ACTIONS,
   CAMPAIGN_BRAND,
   CAMPAIGN_GATE_OPTIONS,
@@ -56,13 +56,28 @@ export const DemoBrandDashboard: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <h1 className="font-display text-xl font-bold">Owner Analytics</h1>
-            <p className="text-xs text-muted-foreground">
-              Verified outcomes for campaign owners
-            </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="font-display text-xl font-bold truncate">Owner Analytics</h1>
+              <DemoPreviewChip />
+            </div>
+            <p className="text-xs text-muted-foreground">Verified outcomes for campaign owners</p>
           </div>
         </header>
+
+        <div className="demo-glass-card demo-glow-ring demo-hero-metric mb-4 demo-animate-fade-up">
+          <p className="text-[0.65rem] text-muted-foreground uppercase tracking-wider mb-1">
+            Verified views this session
+          </p>
+          <p className="font-display text-5xl font-bold gradient-text leading-none">
+            {state.campaignVerifiedViews}
+          </p>
+          <p className="text-xs text-muted-foreground mt-2 max-w-[16rem] mx-auto">
+            {state.campaignPublished
+              ? 'Publish + earn in Feed to grow this number.'
+              : 'Publish campaign, then complete the Feed earn loop.'}
+          </p>
+        </div>
 
         <div className="demo-glass-card p-4 mb-4 demo-animate-fade-up">
           <p className="text-xs text-primary uppercase tracking-wider mb-1">{CAMPAIGN_BRAND}</p>
@@ -189,11 +204,7 @@ export const DemoBrandDashboard: React.FC = () => {
           Attention Analytics
         </button>
 
-        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mb-4" />
-
-        <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed px-2">
-          {BRAND_DASHBOARD_DISCLAIMER}
-        </p>
+        <DemoRestartControl onRestart={restartDemoToFeed} variant="footer" className="mb-2" />
       </div>
     </DemoShell>
   );

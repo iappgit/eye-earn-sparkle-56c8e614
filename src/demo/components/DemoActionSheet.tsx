@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import type { WalletAction } from '../demoTypes';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import {
   CONVERT_AMOUNT,
   PAY_AMOUNT,
@@ -11,7 +12,6 @@ import {
   TIP_CREATOR,
   WITHDRAW_AMOUNT,
   WITHDRAW_MIN,
-  WALLET_DISCLAIMER,
 } from '../demoData';
 
 interface ActionConfig {
@@ -150,7 +150,9 @@ export const DemoActionSheet: React.FC = () => {
           Cancel
         </button>
 
-        <p className="demo-disclaimer mt-3">{WALLET_DISCLAIMER}</p>
+        <div className="flex justify-center mt-3">
+          <DemoPreviewChip />
+        </div>
       </div>
     </div>
   );

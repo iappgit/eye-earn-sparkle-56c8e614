@@ -3,6 +3,7 @@ import { ArrowLeft, MapPin, Clock, ShieldCheck, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 
 export const DemoOffer: React.FC = () => {
   const { state, goToStep, setNavTab } = useDemoState();
@@ -32,7 +33,7 @@ export const DemoOffer: React.FC = () => {
   }
 
   return (
-    <DemoShell showDisclaimer>
+    <DemoShell showDisclaimer={false}>
       <div className="pb-28">
         <div className="relative aspect-[16/10] max-h-[40vh]">
           <img
@@ -49,6 +50,9 @@ export const DemoOffer: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <div className="absolute top-4 right-4">
+            <DemoPreviewChip />
+          </div>
         </div>
 
         <div className="px-4 -mt-6 relative z-10 demo-animate-fade-up">

@@ -2,7 +2,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import type { PlatformId } from '../demoTypes';
-import { PLATFORM_META, PLATFORM_DISCLAIMER } from '../demoData';
+import { PLATFORM_META } from '../demoData';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 
 const PLATFORMS: PlatformId[] = ['youtube', 'tiktok', 'instagram', 'twitch'];
 
@@ -18,7 +19,7 @@ export const DemoPlatformToggle: React.FC<DemoPlatformToggleProps> = ({
   return (
     <div className={compact ? 'space-y-2' : 'space-y-3'}>
       {!compact && (
-        <p className="text-xs text-muted-foreground">{PLATFORM_DISCLAIMER}</p>
+        <DemoPreviewChip label="Simulated connections" />
       )}
       <div className={cn('grid gap-2', compact ? 'grid-cols-2' : 'grid-cols-2')}>
         {PLATFORMS.map((id) => {

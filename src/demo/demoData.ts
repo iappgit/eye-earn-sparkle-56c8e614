@@ -14,7 +14,7 @@ import type {
 export const DEMO_TAGLINE = 'Verified attention becomes value.';
 
 export const DEMO_DISCLAIMER =
-  'Simulated investor prototype. No real value, banking, payment, or external platform access.';
+  'Simulated prototype — no real value, banking, or external access.';
 
 export const WALLET_DISCLAIMER =
   'Simulated wallet preview. No real value, banking, payment, or settlement.';
@@ -105,6 +105,27 @@ export const CREATOR_STATS = {
   tipsReceived: '186',
   activeCampaigns: 3,
 };
+
+export function getCreatorProfileStats(state: {
+  connectedPlatforms: ConnectedPlatforms;
+  transactions: DemoTransaction[];
+  campaignVerifiedViews: number;
+  claimedOfferIds: string[];
+  earnedThisSession: number;
+}) {
+  const connectedCount = Object.values(state.connectedPlatforms).filter(Boolean).length;
+  const tipsReceived = state.transactions
+    .filter((t) => t.type === 'tip' || t.type === 'clickEarn')
+    .reduce((sum, t) => sum + t.amount, 0);
+  const verifiedViewsSession = state.campaignVerifiedViews + state.claimedOfferIds.length;
+
+  return {
+    connectedCount,
+    tipsReceived,
+    verifiedViewsSession,
+    sessionEarned: state.earnedThisSession,
+  };
+}
 
 export interface CreatorContentItem {
   id: string;

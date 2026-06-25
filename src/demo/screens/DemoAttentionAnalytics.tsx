@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import {
-  ANALYTICS_DISCLAIMER,
   getAttentionAnalyticsData,
 } from '../demoData';
 import { useDemoState } from '../useDemoState';
@@ -50,11 +50,12 @@ export const DemoAttentionAnalytics: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <h1 className="font-display text-xl font-bold">Attention Analytics</h1>
-            <p className="text-xs text-muted-foreground">
-              Measure verified attention across [ i ]
-            </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="font-display text-xl font-bold truncate">Attention Analytics</h1>
+              <DemoPreviewChip />
+            </div>
+            <p className="text-xs text-muted-foreground">Verified attention across [ i ]</p>
           </div>
         </header>
 
@@ -62,7 +63,7 @@ export const DemoAttentionAnalytics: React.FC = () => {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2 px-0.5">
             View
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="demo-chip-scroll -mx-1 px-1">
             {VIEW_CHIPS.map((chip) => (
               <Chip
                 key={chip.id}
@@ -79,7 +80,7 @@ export const DemoAttentionAnalytics: React.FC = () => {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2 px-0.5">
             Range
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="demo-chip-scroll -mx-1 px-1">
             {RANGE_CHIPS.map((chip) => (
               <Chip
                 key={chip.id}
@@ -172,10 +173,6 @@ export const DemoAttentionAnalytics: React.FC = () => {
             Feed
           </button>
         </div>
-
-        <p className="text-[10px] text-muted-foreground/80 text-center leading-relaxed px-2">
-          {ANALYTICS_DISCLAIMER}
-        </p>
       </div>
     </DemoShell>
   );
@@ -195,7 +192,7 @@ function Chip({
       type="button"
       onClick={onClick}
       className={cn(
-        'px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors',
+        'px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors flex-shrink-0 min-h-[2.25rem]',
         active
           ? 'bg-primary/20 border-primary/40 text-primary'
           : 'bg-white/5 border-white/10 text-muted-foreground',

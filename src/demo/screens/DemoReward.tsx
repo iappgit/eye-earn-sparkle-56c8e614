@@ -3,6 +3,7 @@ import { Sparkles, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
+import { DemoPreviewChip } from '../components/DemoPreviewChip';
 
 export const DemoReward: React.FC = () => {
   const { state, setNavTab, goToStep } = useDemoState();
@@ -44,8 +45,11 @@ export const DemoReward: React.FC = () => {
   const coinLabel = offer.rewardType === 'acoin' ? 'ACoins' : 'iCoins';
 
   return (
-    <DemoShell showDisclaimer>
+    <DemoShell showDisclaimer={false}>
       <div className="flex flex-col items-center justify-center min-h-[100dvh] px-6 text-center relative overflow-hidden">
+        <div className="absolute top-4 right-4 z-10">
+          <DemoPreviewChip />
+        </div>
         {/* Celebration particles */}
         {particles.map((p) => (
           <div
