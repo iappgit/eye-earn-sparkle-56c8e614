@@ -1,115 +1,71 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
-
-type CameraStatus = 'checking' | 'active' | 'denied' | 'unavailable';
+import type { DemoPopTrackingState } from '../hooks/useDemoPopTracking';
 
 interface DemoLiveTrackingOverlayProps {
   progress: number;
-  popScore: number;
+  tracking: DemoPopTrackingState;
 }
 
 const PRIVACY_COPY =
-  'Simulated POP tracking preview. Camera stays local and is not recorded.';
+  'Prototype POP signals. Camera stays local and is not recorded.';
 
-function getTrackingPhase(progress: number): string {
-  if (progress >= 100) return 'Reward eligible';
-  if (progress >= 70) return 'Confirming';
-  if (progress >= 25) return 'Tracking';
+function getSignalEngineLabel(tracking: DemoPopTrackingState): string {
+  if (tracking.trackingMode === 'synthetic') return 'synthetic mode';
+  if (tracking.signalSource === 'mediapipe') return 'MediaPipe engine';
+  return 'canvas heuristics';
+}
+
+function getTrackingPhase(progress: number, tracking: DemoPopTrackingState): string {
+  if (tracking.eligible || progress >= 100) return 'Reward eligible';
+  if (tracking.trackingMode === 'synthetic') return 'Simulation fallback active';
+  if (tracking.cameraStatus === 'active' && tracking.popScore >= 72) return 'Tracking live';
+  if (progress >= 25 || tracking.attentionConfidence >= 45) return 'Calibrating signals';
   return 'Calibrating';
 }
 
-function getGazeConfidence(progress: number): number {
-  if (progress >= 70) return Math.min(98, 88 + Math.round((progress - 70) * 0.33));
-  if (progress >= 25) return Math.min(87, 58 + Math.round((progress - 25) * 0.65));
-  return Math.max(42, 38 + Math.round(progress * 0.8));
-}
-
 const GATE_LABELS = [
-  { key: 'face', label: 'Face detected', min: 8 },
-  { key: 'eyes', label: 'Eyes open', min: 20 },
-  { key: 'gaze', label: 'Gaze centered', min: 40 },
-  { key: 'session', label: 'Session stable', min: 55 },
-  { key: 'pop', label: 'POP eligible', min: 85 },
+  { key: 'face', label: 'Face present' },
+  { key: 'eyes', label: 'Eyes open' },
+  { key: 'gaze', label: 'Gaze centered' },
+  { key: 'session', label: 'Session stable' },
+  { key: 'pop', label: 'POP eligible' },
 ] as const;
 
 export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = ({
   progress,
-  popScore,
+  tracking,
 }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('checking');
-  const [hasCameraPreview, setHasCameraPreview] = useState(false);
-  const [blinkPulse, setBlinkPulse] = useState(false);
+  const previewRef = useRef<HTMLVideoElement>(null);
+  const showSynthetic = tracking.trackingMode === 'synthetic';
+  const isCameraPreview = tracking.trackingMode === 'camera-preview';
 
-  const phase = getTrackingPhase(progress);
-  const gazeConfidence = getGazeConfidence(progress);
+  const phase = getTrackingPhase(progress, tracking);
+
   const gazeOffset = useMemo(() => {
+    if (tracking.facePresent) {
+      return Math.max(-12, Math.min(12, (tracking.gazeConfidence - 55) * 0.18));
+    }
     const t = progress / 100;
     return Math.max(-12, Math.min(12, 14 - t * 26));
-  }, [progress]);
+  }, [tracking.facePresent, tracking.gazeConfidence, progress]);
+
+  const gateActive = (gateKey: string) => {
+    if (gateKey === 'face') return tracking.facePresent;
+    if (gateKey === 'eyes') return tracking.eyesOpen;
+    if (gateKey === 'gaze') return tracking.gazeCentered;
+    if (gateKey === 'session') return tracking.sessionStable;
+    if (gateKey === 'pop') return tracking.eligible;
+    return false;
+  };
 
   useEffect(() => {
-    let cancelled = false;
+    if (!previewRef.current || !tracking.stream) return;
+    previewRef.current.srcObject = tracking.stream;
+    void previewRef.current.play().catch(() => undefined);
+  }, [tracking.stream]);
 
-    async function initCamera() {
-      if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-        setCameraStatus('unavailable');
-        setHasCameraPreview(false);
-        return;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false,
-        });
-
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-
-        streamRef.current = stream;
-        setCameraStatus('active');
-        setHasCameraPreview(true);
-      } catch (err) {
-        if (cancelled) return;
-        const denied =
-          err instanceof DOMException &&
-          (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
-        setCameraStatus(denied ? 'denied' : 'unavailable');
-        setHasCameraPreview(false);
-      }
-    }
-
-    void initCamera();
-
-    return () => {
-      cancelled = true;
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (cameraStatus !== 'active' || !streamRef.current || !videoRef.current) return;
-    videoRef.current.srcObject = streamRef.current;
-    void videoRef.current.play().catch(() => undefined);
-  }, [cameraStatus, hasCameraPreview]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBlinkPulse(true);
-      setTimeout(() => setBlinkPulse(false), 280);
-    }, 3200);
-    return () => clearInterval(interval);
-  }, []);
-
-  const showSynthetic = !hasCameraPreview || cameraStatus !== 'active';
+  const rewardEligibility = Math.min(100, Math.round((tracking.popScore + progress) / 2));
 
   return (
     <section className="demo-tracking-root mx-4 mb-3 demo-animate-fade-up" aria-label="POP live tracking preview">
@@ -118,12 +74,14 @@ export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = (
           <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-primary">
             POP live tracking
           </p>
-          <p className="text-xs text-muted-foreground">{phase} · demo layer</p>
+          <p className="text-xs text-muted-foreground">
+            {phase} · {getSignalEngineLabel(tracking)}
+          </p>
         </div>
         <span
           className={cn(
             'demo-tracking-phase-badge',
-            progress >= 100 && 'demo-tracking-phase-badge-ready',
+            tracking.eligible && 'demo-tracking-phase-badge-ready',
           )}
         >
           {phase}
@@ -131,12 +89,12 @@ export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = (
       </div>
 
       <div className="demo-tracking-viewport demo-glow-ring">
-        {hasCameraPreview && cameraStatus === 'active' && (
+        {isCameraPreview && tracking.stream && (
           <video
-            ref={videoRef}
+            ref={previewRef}
             className="demo-tracking-camera"
-            playsInline
             muted
+            playsInline
             autoPlay
             aria-hidden
           />
@@ -144,15 +102,23 @@ export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = (
 
         {showSynthetic && (
           <div className="demo-tracking-synthetic" aria-hidden>
-            <SyntheticFaceMesh progress={progress} gazeOffset={gazeOffset} blinkPulse={blinkPulse} />
+            <SyntheticFaceMesh progress={progress} gazeOffset={gazeOffset} blinkPulse={tracking.blinkPulse} />
+          </div>
+        )}
+
+        {isCameraPreview && (
+          <div className="demo-tracking-live-badge" aria-hidden>
+            <span className="demo-tracking-live-dot" />
+            Camera active
           </div>
         )}
 
         <TrackingSvgOverlay
           progress={progress}
           gazeOffset={gazeOffset}
-          blinkPulse={blinkPulse}
-          dimmed={hasCameraPreview && cameraStatus === 'active'}
+          blinkPulse={tracking.blinkPulse}
+          dimmed={isCameraPreview}
+          headStable={tracking.headStable}
         />
 
         <div className="demo-tracking-gate-row">
@@ -161,7 +127,7 @@ export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = (
               key={gate.key}
               className={cn(
                 'demo-tracking-gate',
-                progress >= gate.min && 'demo-tracking-gate-active',
+                gateActive(gate.key) && 'demo-tracking-gate-active',
               )}
             >
               {gate.label}
@@ -171,37 +137,45 @@ export const DemoLiveTrackingOverlay: React.FC<DemoLiveTrackingOverlayProps> = (
       </div>
 
       <p className="demo-tracking-camera-note">
-        {cameraStatus === 'checking' && 'Checking local camera preview…'}
-        {cameraStatus === 'active' && 'Local camera preview active'}
-        {(cameraStatus === 'denied' || cameraStatus === 'unavailable') &&
-          'Camera unavailable — simulated tracking layer active'}
+        {tracking.cameraStatus === 'checking' && 'Checking local camera access…'}
+        {tracking.cameraStatus === 'active' && 'Local camera preview active'}
+        {tracking.cameraStatus === 'denied' && 'Camera denied — simulation fallback active'}
+        {tracking.cameraStatus === 'unavailable' && 'Camera unavailable — simulation fallback active'}
       </p>
 
       <div className="demo-tracking-status-grid">
-        <StatusCard label="Face presence" value="Live" active={progress >= 8} />
+        <StatusCard
+          label="Face presence"
+          value={tracking.facePresent ? 'Present' : 'Seeking'}
+          active={tracking.facePresent}
+        />
         <StatusCard
           label="Gaze confidence"
-          value={`${gazeConfidence}%`}
-          active={progress >= 25}
+          value={`${tracking.gazeConfidence}%`}
+          active={tracking.gazeCentered}
         />
-        <StatusCard label="Eye openness" value="Stable" active={progress >= 20} />
+        <StatusCard
+          label="Eye openness"
+          value={tracking.eyesOpen ? 'Open' : tracking.blinkPulse ? 'Blink' : 'Scanning'}
+          active={tracking.eyesOpen}
+        />
         <StatusCard
           label="POP score"
-          value={progress >= 70 ? `${popScore}%` : 'Preview'}
-          active={progress >= 55}
+          value={`${tracking.popScore}%`}
+          active={tracking.eligible}
         />
         <StatusCard
-          label="Fraud screen"
-          value={progress >= 70 ? 'Passed preview' : 'Scanning'}
-          active={progress >= 70}
+          label="Signal integrity"
+          value={tracking.sessionStable ? 'Stable' : 'Calibrating'}
+          active={tracking.sessionStable}
           className="col-span-2 sm:col-span-1"
         />
       </div>
 
       <div className="demo-tracking-bars">
-        <Bar label="Attention confidence" value={gazeConfidence} />
-        <Bar label="Session integrity" value={Math.min(100, Math.round(progress * 0.92 + 8))} />
-        <Bar label="Reward eligibility" value={Math.min(100, Math.round(progress * 0.98))} />
+        <Bar label="Attention confidence" value={tracking.attentionConfidence} />
+        <Bar label="Session integrity" value={tracking.sessionStable ? 92 : Math.min(78, tracking.attentionConfidence)} />
+        <Bar label="Reward eligibility" value={rewardEligibility} />
       </div>
 
       <p className="demo-tracking-privacy">{PRIVACY_COPY}</p>
@@ -318,11 +292,13 @@ function TrackingSvgOverlay({
   gazeOffset,
   blinkPulse,
   dimmed,
+  headStable,
 }: {
   progress: number;
   gazeOffset: number;
   blinkPulse: boolean;
   dimmed: boolean;
+  headStable: boolean;
 }) {
   return (
     <svg
@@ -380,7 +356,7 @@ function TrackingSvgOverlay({
         />
       ))}
       <text x="100" y="148" textAnchor="middle" className="demo-tracking-head-pose">
-        Head pose · preview {Math.min(99, 12 + Math.round(progress * 0.7))}° stable
+        Head pose · {headStable ? 'stable' : 'calibrating'} {Math.min(99, 12 + Math.round(progress * 0.7))}°
       </text>
       <circle
         cx="168"
