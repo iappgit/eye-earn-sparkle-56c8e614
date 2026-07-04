@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -568,6 +568,13 @@ const Auth: React.FC = () => {
                 By creating an account, you agree to our Terms of Service and Privacy Policy
               </p>
             )}
+
+            <Link
+              to="/start"
+              className="mt-6 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Switch app
+            </Link>
           </>
         )}
       </div>

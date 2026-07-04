@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { LayoutGrid } from 'lucide-react';
 import iLogo from '@/assets/i-logo.png';
 import { DEMO_TAGLINE } from '../demoData';
 import { useDemoState } from '../useDemoState';
@@ -64,6 +66,14 @@ export const DemoSplash: React.FC = () => {
           <div className="mt-6 max-w-xs w-full demo-animate-fade-up" style={{ animationDelay: '0.3s' }}>
             <DemoRestartControl onRestart={restartDemoToSplash} variant="footer" />
           </div>
+
+          <Link
+            to="/start"
+            className="mt-5 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            Switch app
+          </Link>
         </div>
       </div>
     </DemoShell>

@@ -27,33 +27,36 @@ import NotFound from "./pages/NotFound";
 import SocialConnect from "./pages/SocialConnect";
 import { PromotionDetails } from "./components/PromotionDetails";
 import DemoApp from "./demo/DemoApp";
+import LaunchChooser from "./pages/LaunchChooser";
 
 const queryClient = new QueryClient();
 
 const ProductionSplash: React.FC = () => {
   const location = useLocation();
-  if (location.pathname.startsWith("/demo")) return null;
+  if (location.pathname.startsWith("/demo") || location.pathname === "/start") return null;
   return <SplashScreen />;
 };
 
 const AppContent = () => {
   const location = useLocation();
-  const isDemo = location.pathname.startsWith("/demo");
+  const minimalChrome =
+    location.pathname.startsWith("/demo") || location.pathname === "/start";
 
   const { isSwipingBack, swipeProgress } = useSwipeBack({
-    enabled: !isDemo,
+    enabled: !minimalChrome,
     threshold: 150,
     edgeWidth: 25,
   });
 
   return (
     <>
-      {!isDemo && (
+      {!minimalChrome && (
         <SwipeBackIndicator isActive={isSwipingBack} progress={swipeProgress} />
       )}
-      {!isDemo && <BreadcrumbNavigation />}
-      {!isDemo && <OfflineBanner />}
+      {!minimalChrome && <BreadcrumbNavigation />}
+      {!minimalChrome && <OfflineBanner />}
       <Routes>
+        <Route path="/start" element={<LaunchChooser />} />
         <Route path="/demo" element={<DemoApp />} />
         <Route path="/auth" element={<Auth />} />
         <Route
