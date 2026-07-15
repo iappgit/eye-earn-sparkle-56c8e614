@@ -132,9 +132,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
+  // Same-origin relative next path preserved through auth flows (e.g. OAuth consent).
+  const getNextPath = (): string => {
+    try {
+      const p = new URLSearchParams(window.location.search).get('next');
+      if (p && p.startsWith('/') && !p.startsWith('//')) return p;
+    } catch { /* ignore */ }
+    return '/';
+  };
+
   const signUp = async (email: string, password: string, username: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    const redirectUrl = `${window.location.origin}${getNextPath()}`;
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -163,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}${getNextPath()}`,
       },
     });
     
