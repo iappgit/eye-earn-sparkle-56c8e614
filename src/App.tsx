@@ -19,6 +19,7 @@ import { useSwipeBack } from "@/hooks/useSwipeBack";
 import LaunchChooser from "./pages/LaunchChooser";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const DemoApp = lazy(() => import("./demo/DemoApp"));
 const Index = lazy(() => import("./pages/Index"));
@@ -80,6 +81,7 @@ const AppContent = () => {
           <Route path="/start" element={<LaunchChooser />} />
           <Route path="/demo" element={<DemoApp />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route
             path="/"
             element={
