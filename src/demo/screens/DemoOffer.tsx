@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoPreviewChip } from '../components/DemoPreviewChip';
+import { DemoOfferMedia } from '../components/DemoOfferMedia';
 
 export const DemoOffer: React.FC = () => {
   const { state, goToStep, setNavTab } = useDemoState();
@@ -36,11 +37,7 @@ export const DemoOffer: React.FC = () => {
     <DemoShell showDisclaimer={false}>
       <div className="pb-28">
         <div className="relative aspect-[16/10] max-h-[40vh]">
-          <img
-            src={offer.imageUrl}
-            alt={offer.title}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <DemoOfferMedia offer={offer} autoPlay />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
           <button
             type="button"
@@ -106,8 +103,9 @@ export const DemoOffer: React.FC = () => {
               <div>
                 <p className="text-sm font-medium mb-1">Verified attention</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Simulated proof-of-presence and attention scoring. No camera
-                  required in this preview.
+                  Live POP tracking may request camera access for local face and
+                  gaze signals. If denied, simulation fallback runs automatically.
+                  Camera stays local and is not recorded.
                 </p>
               </div>
             </div>

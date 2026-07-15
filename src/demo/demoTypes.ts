@@ -79,6 +79,8 @@ export interface DemoOffer {
   title: string;
   description: string;
   imageUrl: string;
+  /** Optional local vertical clip for immersive feed / verify. */
+  videoUrl?: string;
   rewardAmount: number;
   rewardType: CoinType;
   category: string;

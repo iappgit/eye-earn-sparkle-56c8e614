@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useDemoRecording } from '../demoRecordingContext';
 
 interface DemoPreviewChipProps {
   label?: string;
@@ -9,6 +10,9 @@ interface DemoPreviewChipProps {
 export const DemoPreviewChip: React.FC<DemoPreviewChipProps> = ({
   label = 'Preview only',
   className,
-}) => (
-  <span className={cn('demo-preview-chip', className)}>{label}</span>
-);
+}) => {
+  const { hidePreviewChips } = useDemoRecording();
+  if (hidePreviewChips) return null;
+
+  return <span className={cn('demo-preview-chip', className)}>{label}</span>;
+};

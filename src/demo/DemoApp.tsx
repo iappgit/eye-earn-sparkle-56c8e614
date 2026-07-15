@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DemoStateProvider, useDemoState } from './useDemoState';
+import { DemoRecordingProvider, useDemoRecording } from './demoRecordingContext';
+import { DemoTourProvider, useDemoTour } from './demoTourContext';
+import { DemoGuidedTour, DemoRecordingBadge } from './components/DemoGuidedTour';
 import { DemoSplash } from './screens/DemoSplash';
 import { DemoFeed } from './screens/DemoFeed';
 import { DemoOffer } from './screens/DemoOffer';
@@ -57,10 +60,34 @@ const DemoRouter: React.FC = () => {
   }
 };
 
+const DemoTourLayer: React.FC = () => {
+  const { tourActive, startTour, stopTour } = useDemoTour();
+  const { isRecordingMode } = useDemoRecording();
+  const { enterDemo } = useDemoState();
+
+  useEffect(() => {
+    if (!isRecordingMode) return;
+    enterDemo();
+    startTour();
+  }, [enterDemo, isRecordingMode, startTour]);
+
+  return (
+    <>
+      <DemoRecordingBadge />
+      <DemoGuidedTour active={tourActive} onClose={stopTour} />
+    </>
+  );
+};
+
 const DemoApp: React.FC = () => (
-  <DemoStateProvider>
-    <DemoRouter />
-  </DemoStateProvider>
+  <DemoRecordingProvider>
+    <DemoStateProvider>
+      <DemoTourProvider>
+        <DemoRouter />
+        <DemoTourLayer />
+      </DemoTourProvider>
+    </DemoStateProvider>
+  </DemoRecordingProvider>
 );
 
 export default DemoApp;

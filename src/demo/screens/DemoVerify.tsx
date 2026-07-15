@@ -5,6 +5,7 @@ import { EyeTrackingIndicator } from '@/components/EyeTrackingIndicator';
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoPreviewChip } from '../components/DemoPreviewChip';
+import { DemoOfferMedia } from '../components/DemoOfferMedia';
 import { DemoLiveTrackingOverlay } from '../components/DemoLiveTrackingOverlay';
 import {
   DemoPopTrackingState,
@@ -159,11 +160,7 @@ export const DemoVerify: React.FC = () => {
         />
 
         <div className="relative mx-4 rounded-2xl overflow-hidden demo-glow-ring min-h-[28dvh] max-h-[38dvh]">
-          <img
-            src={offer.imageUrl}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <DemoOfferMedia offer={offer} autoPlay />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f]/90 via-transparent to-[#0a0a0f]/30" />
 
           <EyeTrackingIndicator
@@ -255,6 +252,11 @@ export const DemoVerify: React.FC = () => {
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Prototype POP signals. Camera stays local and is not recorded.
+            </p>
+            <p className="text-xs text-muted-foreground/80 leading-relaxed mt-2 border-t border-white/5 pt-2">
+              In this preview, reward completion is timer-based (~
+              {Math.round(VERIFY_DURATION_MS / 1000)}s). Verification gates above
+              are illustrative — they show how strictness would feel in production.
             </p>
           </div>
         </div>

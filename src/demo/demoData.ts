@@ -266,6 +266,7 @@ export function buildCampaignOffer(params: {
     description: `Published preview · ${actionLabel} CTA with ${params.campaignStrictness} POP strictness and ${gateCount} verification gates enabled.`,
     imageUrl:
       'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1080&h=720&fit=crop',
+    videoUrl: '/demo-media/campaign-launch.mp4',
     rewardAmount: params.campaignReward,
     rewardType: 'acoin',
     category: 'Campaign',
@@ -533,6 +534,7 @@ export const DEMO_OFFERS: DemoOffer[] = [
       'Watch a 15-second brand story. Simulated proof-of-presence and attention scoring unlock a demo reward.',
     imageUrl:
       'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1080&h=720&fit=crop',
+    videoUrl: '/demo-media/aurora-coffee.mp4',
     rewardAmount: 50,
     rewardType: 'acoin',
     category: 'Food & Drink',
@@ -548,6 +550,7 @@ export const DEMO_OFFERS: DemoOffer[] = [
       'A high-energy promo designed to show how verified viewing converts attention into value.',
     imageUrl:
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1080&h=720&fit=crop',
+    videoUrl: '/demo-media/pulse-fitness.mp4',
     rewardAmount: 3,
     rewardType: 'icoin',
     category: 'Health',

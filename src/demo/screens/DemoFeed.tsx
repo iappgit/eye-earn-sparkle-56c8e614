@@ -5,6 +5,7 @@ import { DEMO_OFFERS, getActiveFeaturedOffer, CAMPAIGN_BRAND } from '../demoData
 import { useDemoState } from '../useDemoState';
 import { DemoShell } from '../components/DemoShell';
 import { DemoConceptCard } from '../components/DemoConceptCard';
+import { DemoOfferMedia } from '../components/DemoOfferMedia';
 import type { DemoOffer } from '../demoTypes';
 
 function CoinLabel({ type, amount }: { type: DemoOffer['rewardType']; amount: number }) {
@@ -79,11 +80,7 @@ export const DemoFeed: React.FC = () => {
           style={{ animationDelay: '0.05s' }}
         >
           <div className="relative aspect-[4/5] max-h-[52vh]">
-            <img
-              src={featured.imageUrl}
-              alt={featured.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            <DemoOfferMedia offer={featured} autoPlay />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent" />
             <div className="absolute top-3 left-3">
               {isCampaignFeatured && (

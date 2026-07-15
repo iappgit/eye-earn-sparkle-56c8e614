@@ -31,6 +31,22 @@ export const DemoCreatorProfile: React.FC = () => {
   const { state, setCreatorTab, openTipFromProfile } = useDemoState();
   const stats = getCreatorProfileStats(state);
 
+  const dashboardViews =
+    stats.verifiedViewsSession > 0
+      ? `${(24.2 + stats.verifiedViewsSession * 1.8).toFixed(1)}K`
+      : '24.2K';
+  const dashboardEngagement = `${(
+    6.2 +
+    stats.connectedCount * 0.55 +
+    (stats.tipsReceived > 0 ? 1.4 : 0)
+  ).toFixed(1)}%`;
+  const dashboardPop =
+    state.popScore > 0
+      ? `${state.popScore}%`
+      : stats.verifiedViewsSession > 0
+        ? `${Math.min(97, 84 + stats.verifiedViewsSession * 4)}%`
+        : '91%';
+
   return (
     <DemoShell showNav>
       <div
@@ -127,19 +143,22 @@ export const DemoCreatorProfile: React.FC = () => {
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">Creator dashboard</span>
+                <span className="text-[0.55rem] text-muted-foreground ml-auto">
+                  Session-adjusted preview
+                </span>
               </div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div className="demo-glass-card p-2 !rounded-lg">
                   <p className="text-[0.6rem] text-muted-foreground">7d views</p>
-                  <p className="font-bold text-sm">24.2K</p>
+                  <p className="font-bold text-sm">{dashboardViews}</p>
                 </div>
                 <div className="demo-glass-card p-2 !rounded-lg">
                   <p className="text-[0.6rem] text-muted-foreground">Engagement</p>
-                  <p className="font-bold text-sm">8.4%</p>
+                  <p className="font-bold text-sm">{dashboardEngagement}</p>
                 </div>
                 <div className="demo-glass-card p-2 !rounded-lg">
                   <p className="text-[0.6rem] text-muted-foreground">Avg POP</p>
-                  <p className="font-bold text-sm">91%</p>
+                  <p className="font-bold text-sm">{dashboardPop}</p>
                 </div>
               </div>
             </div>

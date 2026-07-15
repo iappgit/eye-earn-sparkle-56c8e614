@@ -1,14 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Map } from 'lucide-react';
 import iLogo from '@/assets/i-logo.png';
 import { DEMO_TAGLINE } from '../demoData';
 import { useDemoState } from '../useDemoState';
+import { useDemoTour } from '../demoTourContext';
 import { DemoShell } from '../components/DemoShell';
 import { DemoRestartControl } from '../components/DemoRestartControl';
 
 export const DemoSplash: React.FC = () => {
   const { enterDemo, restartDemoToSplash } = useDemoState();
+  const { startTour } = useDemoTour();
+
+  const handleGuidedTour = () => {
+    startTour();
+  };
 
   return (
     <DemoShell showDisclaimer>
@@ -61,6 +67,16 @@ export const DemoSplash: React.FC = () => {
             onClick={enterDemo}
           >
             Enter Demo
+          </button>
+
+          <button
+            type="button"
+            className="demo-cta demo-cta-secondary max-w-xs mt-3 demo-animate-fade-up"
+            style={{ animationDelay: '0.25s' }}
+            onClick={handleGuidedTour}
+          >
+            <Map className="w-4 h-4 inline mr-1.5" />
+            Guided tour
           </button>
 
           <div className="mt-6 max-w-xs w-full demo-animate-fade-up" style={{ animationDelay: '0.3s' }}>

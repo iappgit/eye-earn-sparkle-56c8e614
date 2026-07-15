@@ -159,16 +159,16 @@ export const DemoCampaignBuilder: React.FC = () => {
                 type="button"
                 className="demo-cta flex-1 !min-h-0 py-2.5 text-sm"
                 onClick={() => setStudioPreviewReady(true)}
+                disabled={state.studioPreviewReady}
               >
-                Generate preview
-              </button>
-              <button
-                type="button"
-                className="demo-cta demo-cta-secondary flex-1 !min-h-0 py-2.5 text-sm"
-                disabled={!state.studioPreviewReady}
-                onClick={() => setStudioPreviewReady(true)}
-              >
-                Use in campaign
+                {state.studioPreviewReady ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Preview ready
+                  </span>
+                ) : (
+                  'Generate preview'
+                )}
               </button>
             </div>
           </div>

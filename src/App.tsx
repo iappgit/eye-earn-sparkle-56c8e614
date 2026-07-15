@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,20 +16,40 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SwipeBackIndicator } from "@/components/SwipeBackIndicator";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSwipeBack } from "@/hooks/useSwipeBack";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
-import Install from "./pages/Install";
-import Create from "./pages/Create";
-import Studio from "./pages/Studio";
-import MyPage from "./pages/MyPage";
-import NotFound from "./pages/NotFound";
-import SocialConnect from "./pages/SocialConnect";
-import { PromotionDetails } from "./components/PromotionDetails";
-import DemoApp from "./demo/DemoApp";
 import LaunchChooser from "./pages/LaunchChooser";
+import Install from "./pages/Install";
+import NotFound from "./pages/NotFound";
+
+const DemoApp = lazy(() => import("./demo/DemoApp"));
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Create = lazy(() => import("./pages/Create"));
+const Studio = lazy(() => import("./pages/Studio"));
+const MyPage = lazy(() => import("./pages/MyPage"));
+const SocialConnect = lazy(() => import("./pages/SocialConnect"));
+const PromotionDetails = lazy(() =>
+  import("./components/PromotionDetails").then((m) => ({
+    default: m.PromotionDetails,
+  })),
+);
 
 const queryClient = new QueryClient();
+
+const RouteFallback: React.FC = () => (
+  <div
+    className="min-h-[100dvh] flex items-center justify-center bg-background"
+    style={{ paddingTop: "env(safe-area-inset-top)" }}
+  >
+    <div className="text-center px-6">
+      <div
+        className="w-10 h-10 rounded-full mx-auto mb-3 border-2 border-primary/30 border-t-primary animate-spin"
+        aria-hidden
+      />
+      <p className="text-sm text-muted-foreground">Loading…</p>
+    </div>
+  </div>
+);
 
 const ProductionSplash: React.FC = () => {
   const location = useLocation();
@@ -55,70 +75,72 @@ const AppContent = () => {
       )}
       {!minimalChrome && <BreadcrumbNavigation />}
       {!minimalChrome && <OfflineBanner />}
-      <Routes>
-        <Route path="/start" element={<LaunchChooser />} />
-        <Route path="/demo" element={<DemoApp />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/create"
-          element={
-            <ProtectedRoute>
-              <Create />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/studio"
-          element={
-            <ProtectedRoute>
-              <Studio />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <Admin />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-page"
-          element={
-            <ProtectedRoute>
-              <MyPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/social-connect"
-          element={
-            <ProtectedRoute>
-              <SocialConnect />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/install" element={<Install />} />
-        <Route
-          path="/promotion/:id"
-          element={
-            <ProtectedRoute>
-              <PromotionDetails />
-            </ProtectedRoute>
-          }
-        />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/start" element={<LaunchChooser />} />
+          <Route path="/demo" element={<DemoApp />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <Create />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/studio"
+            element={
+              <ProtectedRoute>
+                <Studio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-page"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/social-connect"
+            element={
+              <ProtectedRoute>
+                <SocialConnect />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/install" element={<Install />} />
+          <Route
+            path="/promotion/:id"
+            element={
+              <ProtectedRoute>
+                <PromotionDetails />
+              </ProtectedRoute>
+            }
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 };
