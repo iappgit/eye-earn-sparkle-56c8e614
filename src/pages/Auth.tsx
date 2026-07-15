@@ -42,9 +42,11 @@ const Auth: React.FC = () => {
 
   useEffect(() => {
     if (user && !loading) {
-      navigate('/');
+      const nextParam = searchParams.get('next');
+      const target = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/';
+      navigate(target, { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, searchParams]);
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string; username?: string; phone?: string } = {};
