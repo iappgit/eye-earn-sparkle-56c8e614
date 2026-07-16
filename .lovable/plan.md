@@ -1,224 +1,86 @@
 
+# Read-only audit — investor prototype of [ i ]
 
-# Eye-Control Targets System -- Placeable Screen Targets with Gesture Commands
+Scope: architecture inspection only. No files changed, no services touched.
 
-## Overview
+## 1. Current architecture
 
-This feature adds a fully customizable **Target Command System** to the Remote Control. Users can place interactive targets anywhere on their screen, assign any app command to each target, and trigger those commands with simple micro-gestures (single blink, lip movement, face turn, gaze direction, etc.). The platform also suggests common target layouts and learns from user behavior over time.
+- **Stack:** Vite + React 18 + TS, Tailwind + shadcn/Radix, react-router, TanStack Query, framer-motion, Capacitor (iOS/Android), MediaPipe (face/eye), Mapbox, Supabase (Lovable Cloud) client + 26 edge functions, MCP server exposed via `@lovable.dev/mcp-js`.
+- **Size:** ~94k LOC TS/TSX. `src/components/` has **168 components**, `src/hooks/` has 40 hooks, 11 pages. `Index.tsx` = 906 LOC, `Studio.tsx` = 1,273 LOC, `Auth.tsx` = 587 LOC, `Create.tsx` = 679 LOC.
+- **App areas (routes):**
+  - `/start` LaunchChooser, `/demo` fully separate DemoApp (its own state/router/screens), `/auth`, `/`, `/create`, `/studio`, `/admin`, `/my-page`, `/social-connect`, `/promotion/:id`, `/.lovable/oauth/consent`, `/install`.
+- **Feature clusters** (from component names): eye/gesture control (Blink*, Eye*, Gesture*, Combo*, FloatingControls, TargetOverlay/Editor), studio/creation (Studio, Create, ContentUpload, DuetStitch, Blur/AI text designer), discovery (DiscoveryMap, FavoriteLocations, NearbyPromotions, RoutePlanner), wallet/economy (Coin*, EarningBreakdownChart, DailySpinWheel, CoinGifting, TipCreator), social (Chat, GroupChat, Friends, LinkedSocialAccounts, MyPage), gamification (Achievements, Badges, Challenges, Leaderboard, SpinWheel), admin.
+- **Backend:** 26 Edge Functions cover feed, rewards, referrals, tips, transfers, checkins, payouts, subscriptions, media metadata, AI (music/sfx/voiceover/subtitles/imoji/reply/text-style), attention validation, MCP. Two rounds of security hardening (RLS, GRANTs, security-definer RPCs) already applied per memory.
 
-## What It Does
+## 2. Investor-demo flow status
 
-### 1. Placeable Screen Targets
-- Users open a **Target Editor** (a new tab in Remote Control settings) that shows a phone-shaped canvas representing their screen
-- They can tap anywhere on the canvas to place a new target (circular hotspot)
-- Targets can be dragged to reposition, resized, and removed
-- Each target gets a label and an assigned command + trigger gesture
-- Targets persist in localStorage and appear as semi-transparent overlays when Remote Control is active
+- A **dedicated demo track exists and is investor-ready in shape**: `src/demo/DemoApp.tsx` with 15 screens (splash → feed → offer → verify → reward → wallet → moneyMap → receipt → creator profile → campaign builder → click-earn → ELO overlay → product map → brand dashboard → attention analytics), guided tour + recording badge, isolated state (`useDemoState`), no auth wall.
+- **Production track** (`/`) depends on auth, live data, MediaPipe camera, Mapbox — more fragile for a live pitch.
+- **Verdict:** the `/demo` route is the correct investor surface; it is largely self-contained and can be polished without touching production code.
 
-### 2. Micro-Gesture Triggers
-Each target can be triggered by any of these simple gestures:
-Eyebrows left lift, eyebrows right lift, eyebrows both lift together, 
-Smirk smile
+## 3. Strongest reusable assets (keep)
 
-Full real smile (user really enjoy and or trully smiles at a content and instantly donate anything designable or even save it in a liked folders, enjoyed that instantly gets saved in a liked galeries at saved videos
+- **Design system** — cyberpunk tokens in `index.css`, shadcn base, safe-area/mobile-first patterns; consistent and distinctive.
+- **Demo track** (`src/demo/**`) — narrative + screens already wired; the highest-leverage asset for investors.
+- **Edge Functions + hardened RLS/GRANTs** — most business logic (rewards, tips, transfers, referrals, attention validation, MCP) is server-side and already secured.
+- **Eye/gesture stack** — MediaPipe hooks (`useBlinkDetection`, `useEyeTracking`, `useGazeDirection`, `useGestureCombos`, `useScreenTargets`) + calibration + target editor is a differentiated feature.
+- **MCP server** — OAuth-protected agent integration is a strong investor talking point.
+- **Auth + role/security model** — user_roles table, security-definer `has_role`, RPCs, and 2 completed hardening waves.
 
-Face nudging
+## 4. Technical debt & duplication
 
-Side tilting
+- **Component explosion:** 168 components with many overlapping concerns (e.g. ~15 layout/button manager components: `ButtonFunctionManager`, `ButtonGroupManager`, `ButtonPresetManager`, `HiddenButtonsManager`, `LayoutEditor`, `LayoutTemplates`, `LayoutImportExport`, `LayoutHistoryControls`, `FloatingActionMenu`, `FloatingControls`, `DraggableButton`, …). Strong candidate for consolidation.
+- **God pages:** `Studio.tsx` (1.3k), `Index.tsx` (906), `Create.tsx` (679) mix data-fetching, gesture wiring, UI, and business logic.
+- **Type-safety escape hatches:** prior fixes used `as any` casts for dynamic Supabase updates in `CoinGifting`, `DailySpinWheel`, `useTasks` — silent runtime risk.
+- **Two feature surfaces (demo vs. prod)** for similar flows (wallet, feed, campaigns). Fine for now, but risks divergence.
+- **Heavy dependency surface:** Capacitor + MediaPipe + Mapbox + framer-motion + full Radix set — good for scope, but expensive to keep green on native builds.
 
-Slow blink
+## 5. Likely broken / risky areas
 
-Lips movements
+- **Eye-control on-device** on laptops/phones during a live demo: camera permission, lighting, calibration drift. Session-replay-driven bugfix history suggests this path has been iterated a lot; treat as demo risk.
+- **Mapbox token** edge function was just rewritten (JWT-gated); needs a smoke test before pitching. Same for `validate-attention` (recent 400 on watchDuration bounds).
+- **Type-cast update paths** noted above — can throw at runtime under real data.
+- **Realtime + RLS interactions** after hardening — anon reads were revoked on several tables; any unauth-facing screen that still expects them will 401 silently.
+- **Capacitor iOS/Android builds** are not verified in this audit; native permissions (camera, push) can regress.
+- **Bundle size** at 94k LOC + MediaPipe/Mapbox likely produces a heavy first paint on `/` (less an issue for `/demo`).
 
-Screen touches (1 touch,  2 touchs, 3 touches,mutli touches,  touching timing assignment, holding, sliding, dragging , etc
+## 6. Refactor vs. rebuild — recommendation
 
-Air movement (the user tilts the phone, any side, anywhere, in any way and that movement can be assigned to a command, 
+**Refactor, don't rebuild.** Justification:
+- The demo path is already narrated end-to-end and isolated from production complexity — a rebuild would throw this away.
+- Backend (26 functions, RLS, MCP, OAuth) is the expensive part and it is in good shape after two security waves.
+- Debt is concentrated in a few god-files and a bloated component tree — mechanically fixable.
+- Rebuild cost: months to reach current surface. Refactor cost to investor-ready: ~1–2 focused weeks (see phase plan).
+- Only rebuild if the target audience needs a radically different product thesis than what `/demo` shows.
 
-sounds ( sounds can be assignednl to commands, like " a "uhum" to trigger any command in relation to the media, a Like,  a certain amount of vicoins, anything can be assigned to a sound or word, or a combination of words
-The user can say "uhum, five" the command can be triggered to send "uhum=like" + 5= vicoins)
-The user can say: "yes, 3" and the command "yes is assigned to icoins and the number 3 is assigned to the amount of icoins 
+## 7. Phased execution plan (investor prototype)
 
-Face gestures and emotions like smile, smirk, sadness, happiness, excited, surprise, interesting,  interested,  not interested, attention-tracking, lost of ttention-tracking, loss of attention-tracking
+**Phase 0 — Demo lock (1–2 days)**
+- Freeze `/demo` as the pitch surface. Land a single "Investor Mode" entry from `/start`.
+- Smoke-test each of the 15 demo screens; capture screenshots via Playwright; fix any visual/nav regressions only.
+- Verify offline-friendly assets (no live camera/Mapbox dependency on the demo path).
 
-Platform suggestions (the platform studies the users behavioral insights and strategize the commands for the user, after some time studying the user's behaviors the platform will learn about the user and suggest a better and more natural scrolling experience to the user
-Like on google maps when a better route is suggested by the platform, when the platform hits a certain level of precision about the user's behavioral 1)
+**Phase 1 — Production hero paths (3–5 days)**
+- Pick 3 hero flows to make bulletproof on `/`: (a) sign-in + onboarding, (b) feed + reward claim, (c) eye-control target demo on a controlled screen.
+- Smoke-test edge functions used by those paths: `get-mapbox-token`, `validate-attention`, `issue-reward`, `get-personalized-feed`, `track-interaction`.
+- Add a "kiosk / pitch" toggle that pre-authenticates a demo account and pins to hero flows.
 
+**Phase 2 — Debt triage (3–4 days, parallelizable)**
+- Split `Studio.tsx`, `Index.tsx`, `Create.tsx` into feature folders (data hook + view + subcomponents).
+- Consolidate the 15+ layout/button-manager components behind one `LayoutManager` API.
+- Replace `as any` Supabase casts with typed helpers.
 
+**Phase 3 — Investor polish (2–3 days)**
+- MCP live demo (Claude/ChatGPT connecting to iView tools) — already implemented, needs a scripted moment.
+- Attention analytics + brand dashboard screens: real numbers seeded, not lorem.
+- Perf pass: lazy-load MediaPipe/Mapbox only on routes that need them; verify `/demo` bundle stays lean.
 
-Screen touch (targets can be activated in screen touches
-Buttons and targets can be placed and assigned any commands 
+**Phase 4 — Native + record (1–2 days)**
+- Verify Capacitor iOS/Android build once, capture a screen-recorded demo as fallback if live camera fails on stage.
 
-These targets
-- **Single blink** -- one quick eye blink
-- **Double blink** -- two rapid blinks
-- **Triple blink** -- three rapid blinks
-- **Left lip raise** -- slight lift of the left side of the mouth
-- **Right lip raise** -- slight lift of the right side of the mouth
-- **Slight face turn left** -- small head rotation to the left
-- **Slight face turn right** -- small head rotation to the right
-- **Look at target** -- simply gazing in the direction where the target is placed (gaze-activated)
-- **Look + blink** -- look toward the target area and then blink to confirm
-- **Combined gestures** -- any two gestures in sequence (e.g., lip raise then blink)
+**Out of scope for the prototype (defer):**
+- Rebuilding auth, redesigning tokens, replacing Supabase, adding new business features not on the demo storyboard.
 
-### 3. Any App Command Assignable
-The full list of available commands includes everything the app can do:
-- Like, Comment, Share, Save Video, Follow Creator
-- Next Video, Previous Video
-- Friends Feed, Promo Feed
-- Open Settings, Toggle Mute
-- Open Wallet, Open Profile, Open Map
-- Open Messages, Open Achievements
-- Open Route Builder, Open Saved Videos
-- Start/Stop Remote Control
-- Toggle Camera, Check In
+## Bottom line
 
-### 4. Platform-Suggested Layouts
-Pre-built target arrangements the user can apply with one tap:
-- **Quick Actions** -- Like (bottom-right), Share (top-right), Save (center-right), Comment (bottom-left)
-- **Navigation** -- Next (bottom-center), Previous (top-center), Friends (left-center), Promos (right-center)
-- **Minimal** -- Just Like and Next in the bottom corners
-- **Power User** -- Full grid with 8 targets covering all major actions
-
-### 5. Behavioral Learning
-The platform tracks which commands users trigger most, how accurately they hit targets, and adapts:
-- Suggests relocating targets the user misses frequently
-- Recommends adding targets for actions the user does manually (with touch) while Remote Control is on
-- Gradually adjusts target hit-zones based on the user's gaze accuracy patterns
-- Shows a "Smart Suggestions" section with recommendations like "You like videos 12x/hour -- add a Like target to your layout?"
-
-## Technical Details
-
-### New File: `src/hooks/useScreenTargets.ts`
-
-Core hook managing the target system:
-
-```
-ScreenTarget interface:
-  - id: string
-  - label: string
-  - command: AppCommand (expanded union of all app actions)
-  - trigger: GestureTrigger (union of all micro-gesture types)
-  - position: { x: number, y: number } (0-1 normalized)
-  - size: number (radius in % of screen width, default 8)
-  - enabled: boolean
-  - createdAt: number
-
-GestureTrigger type:
-  - 'singleBlink' | 'doubleBlink' | 'tripleBlink'
-  - 'lipRaiseLeft' | 'lipRaiseRight'
-  - 'faceTurnLeft' | 'faceTurnRight'
-  - 'gazeActivated' (just look at it)
-  - 'gazeAndBlink' (look + blink to confirm)
-  - { type: 'combined', steps: GestureTrigger[] }
-
-AppCommand type (expanded):
-  - All existing ComboAction values (like, comment, share, follow, etc.)
-  - Plus: 'openWallet', 'openProfile', 'openMap', 'openMessages',
-    'openAchievements', 'openRouteBuilder', 'openSavedVideos',
-    'toggleRemoteControl', 'checkIn', 'tipCreator'
-
-Functions:
-  - loadTargets() / saveTargets() -- localStorage persistence
-  - addTarget(target) / removeTarget(id) / updateTarget(id, updates)
-  - applyPreset(presetId) -- loads a suggested layout
-  - getTargetAtPosition(gazeX, gazeY) -- hit-test
-  - recordInteraction(targetId, hit: boolean) -- for learning
-  - getSuggestions() -- behavioral recommendations
-```
-
-Storage key: `app_screen_targets`
-Behavior data key: `app_target_behavior`
-
-### New File: `src/components/TargetEditor.tsx`
-
-Visual editor showing a phone-shaped canvas where users place targets:
-- Phone outline (rounded rectangle) filling the sheet
-- Existing targets shown as draggable circles with icons/labels
-- Tap empty space to add a new target (opens a mini form: choose command + trigger)
-- Long-press a target to edit or delete it
-- "Presets" button at top to load suggested layouts
-- "Clear All" button
-- Each target circle shows a small icon for its command and a badge for its trigger type
-
-### New File: `src/components/TargetOverlay.tsx`
-
-Runtime overlay rendered when Remote Control is active:
-- Renders each enabled target as a semi-transparent circle at its screen position
-- Highlights when gaze enters the target zone
-- Shows activation progress ring (like ghost buttons)
-- Fires the assigned command when the trigger gesture is detected while gazing at the target
-- Animates success feedback (pulse + checkmark)
-
-### New File: `src/components/TargetSuggestions.tsx`
-
-"Smart Suggestions" panel inside the Targets tab:
-- Shows behavioral insights: "You manually liked 15 times today while Remote Control was active"
-- Suggests adding specific targets based on usage patterns
-- Suggests repositioning targets with low accuracy
-- One-tap "Apply Suggestion" buttons
-
-### Modified File: `src/hooks/useGestureCombos.ts`
-
-Expand `ComboAction` type to include all new app commands:
-```
-export type ComboAction =
-  | 'like' | 'comment' | 'share' | 'follow'
-  | 'nextVideo' | 'prevVideo' | 'friendsFeed' | 'promoFeed'
-  | 'openSettings' | 'toggleMute' | 'save'
-  | 'openWallet' | 'openProfile' | 'openMap'
-  | 'openMessages' | 'openAchievements'
-  | 'openRouteBuilder' | 'openSavedVideos'
-  | 'toggleRemoteControl' | 'checkIn' | 'tipCreator'
-  | 'none';
-```
-
-Update `COMBO_ACTION_LABELS` with labels for all new actions.
-
-### Modified File: `src/components/GestureComboBuilder.tsx`
-
-Add the new actions to the `ACTION_OPTIONS` array so custom combos can also target the expanded command set.
-
-### Modified File: `src/components/BlinkRemoteControl.tsx`
-
-Add a 6th tab: **"Targets"** to the settings sheet (changing the grid from 5 to 6 columns):
-- Contains the `TargetEditor` component
-- Contains the `TargetSuggestions` panel
-- Contains the preset layouts section
-
-### Modified File: `src/components/FloatingControls.tsx`
-
-- Render `<TargetOverlay />` when remote control is enabled
-- Pass the expanded `onComboAction` handler to support new commands
-
-### Modified File: `src/pages/Index.tsx`
-
-Expand the `onComboAction` switch to handle all new commands:
-```
-case 'openWallet': setShowWallet(true); break;
-case 'openProfile': setShowProfile(true); break;
-case 'openMap': setShowMap(true); break;
-case 'openMessages': setShowMessages(true); break;
-case 'openAchievements': setShowAchievementsPanel(true); break;
-case 'openRouteBuilder': setShowRouteBuilderFromFeed(true); break;
-case 'openSavedVideos': setShowSavedGallery(true); break;
-case 'checkIn': toast.success('Checked in!'); break;
-case 'tipCreator': toast.info('Tip creator'); break;
-```
-
-## Summary of Files
-
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/hooks/useScreenTargets.ts` | New | Core target state, persistence, hit-testing, behavioral learning |
-| `src/components/TargetEditor.tsx` | New | Visual drag-and-drop editor on phone canvas |
-| `src/components/TargetOverlay.tsx` | New | Runtime gaze-activated target circles |
-| `src/components/TargetSuggestions.tsx` | New | Behavioral learning suggestions panel |
-| `src/hooks/useGestureCombos.ts` | Modified | Expand ComboAction + labels for all app commands |
-| `src/components/GestureComboBuilder.tsx` | Modified | Add new actions to builder options |
-| `src/components/BlinkRemoteControl.tsx` | Modified | Add "Targets" tab with editor, presets, suggestions |
-| `src/components/FloatingControls.tsx` | Modified | Render TargetOverlay, pass expanded handler |
-| `src/pages/Index.tsx` | Modified | Handle all new command actions in onComboAction |
-
-No new dependencies. No database changes. All data stored in localStorage.
-
-
+Keep the project. The `/demo` track + hardened backend + MCP already tell the investor story; the work is disciplined polish and de-bloating, not a rewrite.
