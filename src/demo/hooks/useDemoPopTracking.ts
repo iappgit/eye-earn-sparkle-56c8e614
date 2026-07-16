@@ -207,7 +207,7 @@ export function useDemoPopTracking({
             mediaPipeReadyRef.current &&
             now - lastMediaPipeAtRef.current >= MEDIAPIPE_FRAME_MS;
 
-          const applySignals = (mediaPipeSample: ReturnType<DemoPopMediaPipeAdapter['lastSample']>) => {
+          const applySignals = (mediaPipeSample: DemoPopMediaPipeAdapter['lastSample']) => {
             const merged = mergeFrameSignals(canvasSignal, mediaPipeSample);
             const signalSource: DemoPopSignalSource =
               merged.source === 'mediapipe' || merged.source === 'hybrid'
