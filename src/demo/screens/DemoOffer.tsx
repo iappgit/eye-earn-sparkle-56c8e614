@@ -1,9 +1,7 @@
 import React from 'react';
-import { ArrowLeft, MapPin, Clock, ShieldCheck, Coins } from 'lucide-react';
+import { ArrowLeft, Eye, Clock, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDemoState } from '../useDemoState';
-import { DemoShell } from '../components/DemoShell';
-import { DemoPreviewChip } from '../components/DemoPreviewChip';
 import { DemoOfferMedia } from '../components/DemoOfferMedia';
 
 export const DemoOffer: React.FC = () => {
@@ -11,7 +9,22 @@ export const DemoOffer: React.FC = () => {
   const offer = state.selectedOffer;
   const isClaimed = offer ? state.claimedOfferIds.includes(offer.id) : false;
 
-  const handlePrimaryAction = () => {
+  if (!offer) {
+    return (
+      <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center px-6 text-center">
+        <p className="text-white/60 mb-4">No offer selected.</p>
+        <button
+          type="button"
+          className="rounded-full bg-white text-black px-6 py-2.5 text-sm font-semibold"
+          onClick={() => goToStep('feed')}
+        >
+          Back to feed
+        </button>
+      </div>
+    );
+  }
+
+  const handlePrimary = () => {
     if (isClaimed) {
       setNavTab('wallet');
       goToStep('wallet');
@@ -20,110 +33,119 @@ export const DemoOffer: React.FC = () => {
     goToStep('verify');
   };
 
-  if (!offer) {
-    return (
-      <DemoShell>
-        <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6 text-center">
-          <p className="text-muted-foreground mb-4">No offer selected.</p>
-          <button type="button" className="demo-cta max-w-xs" onClick={() => goToStep('feed')}>
-            Back to feed
-          </button>
-        </div>
-      </DemoShell>
-    );
-  }
+  const rewardIsAcoin = offer.rewardType === 'acoin';
 
   return (
-    <DemoShell showDisclaimer={false}>
-      <div className="pb-28">
-        <div className="relative aspect-[16/10] max-h-[40vh]">
-          <DemoOfferMedia offer={offer} autoPlay />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
-          <button
-            type="button"
-            onClick={() => goToStep('feed')}
-            className="absolute top-4 left-4 w-10 h-10 rounded-full demo-glass-card flex items-center justify-center"
-            aria-label="Back to feed"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="absolute top-4 right-4">
-            <DemoPreviewChip />
-          </div>
-        </div>
-
-        <div className="px-4 -mt-6 relative z-10 demo-animate-fade-up">
-          <div className="demo-glass-card p-5 mb-4">
-            <p className="text-xs text-primary font-medium uppercase tracking-wider mb-1">
-              {offer.category}
-            </p>
-            <h1 className="font-display text-2xl font-bold mb-1">{offer.brandName}</h1>
-            <p className="text-lg text-foreground/90 mb-3">{offer.title}</p>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              {offer.description}
-            </p>
-
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="demo-glass-card p-3 !rounded-xl">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  Distance
-                </div>
-                <p className="font-semibold">{offer.distance}</p>
-              </div>
-              <div className="demo-glass-card p-3 !rounded-xl">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  Watch time
-                </div>
-                <p className="font-semibold">{offer.durationSeconds}s</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/20">
-              <div className="flex items-center gap-2">
-                <Coins className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">Demo reward</span>
-              </div>
-              <span
-                className={cn(
-                  'font-display font-bold text-lg',
-                  offer.rewardType === 'acoin' ? 'gradient-text' : 'gradient-text-gold',
-                )}
-              >
-                +{offer.rewardAmount}{' '}
-                {offer.rewardType === 'acoin' ? 'ACoins' : 'iCoins'}
-              </span>
-            </div>
-          </div>
-
-          <div className="demo-glass-card p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium mb-1">Verified attention</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Live POP tracking may request camera access for local face and
-                  gaze signals. If denied, simulation fallback runs automatically.
-                  Camera stays local and is not recorded.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs text-muted-foreground px-1">{offer.terms}</p>
-        </div>
+    <div className="fixed inset-0 bg-black text-white overflow-hidden">
+      {/* Full-bleed media */}
+      <div className="absolute inset-0">
+        <DemoOfferMedia offer={offer} autoPlay className="absolute inset-0 w-full h-full object-cover" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.15) 65%, rgba(0,0,0,0.45) 100%)',
+          }}
+        />
       </div>
 
-      <div className="demo-sticky-footer">
+      {/* Back */}
+      <button
+        type="button"
+        onClick={() => goToStep('feed')}
+        className="absolute top-[max(1rem,env(safe-area-inset-top))] left-4 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center hover:bg-white/20 transition-colors"
+        aria-label="Back to feed"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
+      {/* Top sponsored tag */}
+      <div
+        className="absolute top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-20 text-[10px] uppercase tracking-[0.32em] text-white/60"
+        style={{ fontFamily: 'JetBrains Mono, monospace' }}
+      >
+        Sponsored attention
+      </div>
+
+      {/* Bottom reward contract */}
+      <div
+        className="absolute left-0 right-0 z-10 px-5"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
+      >
+        <div className="mb-4">
+          <p
+            className="text-[11px] uppercase tracking-[0.3em] text-white/55 mb-1.5"
+            style={{ fontFamily: 'JetBrains Mono, monospace' }}
+          >
+            {offer.brandName}
+          </p>
+          <h1
+            className="text-[26px] leading-[1.15] font-semibold text-white max-w-[22ch]"
+            style={{ fontFamily: 'Syne, DM Sans, sans-serif' }}
+          >
+            Get paid for your attention.
+          </h1>
+          <p className="text-[14px] text-white/70 mt-2 max-w-[32ch] leading-snug">{offer.title}</p>
+        </div>
+
+        <div className="rounded-2xl bg-white/[0.06] backdrop-blur-xl border border-white/10 p-4 mb-4">
+          <div className="grid grid-cols-3 gap-3">
+            <Fact
+              icon={<Coins className="w-4 h-4" />}
+              label="Reward"
+              value={
+                <span className={cn('font-bold text-[15px]', rewardIsAcoin ? 'text-fuchsia-300' : 'text-amber-300')}>
+                  +{offer.rewardAmount} {rewardIsAcoin ? 'A' : 'i'}
+                </span>
+              }
+            />
+            <Fact
+              icon={<Clock className="w-4 h-4" />}
+              label="Watch"
+              value={<span className="font-semibold text-[15px]">{offer.durationSeconds}s</span>}
+            />
+            <Fact
+              icon={<Eye className="w-4 h-4" />}
+              label="Verified"
+              value={<span className="font-semibold text-[13px]">POP</span>}
+            />
+          </div>
+        </div>
+
         <button
           type="button"
-          className="demo-cta max-w-lg mx-auto"
-          onClick={handlePrimaryAction}
+          onClick={handlePrimary}
+          className="w-full rounded-full bg-white text-black py-4 text-[15px] font-semibold shadow-2xl hover:scale-[1.01] active:scale-[0.99] transition-transform"
         >
-          {isClaimed ? 'View in Wallet' : 'Watch · Verify · Earn'}
+          {isClaimed ? 'View in Wallet' : 'Start earning'}
         </button>
+
+        <p
+          className="text-center text-[10px] uppercase tracking-[0.28em] text-white/40 mt-3"
+          style={{ fontFamily: 'JetBrains Mono, monospace' }}
+        >
+          Attention verified locally · camera stays on device
+        </p>
       </div>
-    </DemoShell>
+    </div>
   );
 };
+
+const Fact: React.FC<{ icon: React.ReactNode; label: string; value: React.ReactNode }> = ({
+  icon,
+  label,
+  value,
+}) => (
+  <div className="flex flex-col gap-1">
+    <div className="flex items-center gap-1.5 text-white/50">
+      {icon}
+      <span
+        className="text-[10px] uppercase tracking-[0.2em]"
+        style={{ fontFamily: 'JetBrains Mono, monospace' }}
+      >
+        {label}
+      </span>
+    </div>
+    <div>{value}</div>
+  </div>
+);
