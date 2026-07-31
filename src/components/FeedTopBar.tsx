@@ -28,8 +28,8 @@ export const FeedTopBar: React.FC<FeedTopBarProps> = ({
   return (
     <div
       className={cn(
-        'fixed left-0 right-0 z-40 flex items-center justify-between px-4',
-        'top-[max(0.75rem,env(safe-area-inset-top,0px))]',
+        'fixed left-0 right-0 z-40 flex items-center justify-between px-3.5',
+        'top-[max(0.625rem,calc(env(safe-area-inset-top,0px)+0.25rem))]',
         'transition-all duration-500 ease-out',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
       )}
@@ -39,7 +39,7 @@ export const FeedTopBar: React.FC<FeedTopBarProps> = ({
         type="button"
         onClick={onInfoClick}
         aria-label="About Eye Rewards"
-        className="w-9 h-9 rounded-full glass-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        className="w-8 h-8 rounded-full glass-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
       >
         <Info className="w-[18px] h-[18px]" strokeWidth={1.75} />
       </button>
@@ -68,7 +68,7 @@ export const FeedTopBar: React.FC<FeedTopBarProps> = ({
         type="button"
         onClick={onNotificationsClick}
         aria-label="Notifications"
-        className="relative w-9 h-9 rounded-full glass-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        className="relative w-8 h-8 rounded-full glass-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
       >
         <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
         {unreadCount > 0 && (

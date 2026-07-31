@@ -507,12 +507,12 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
       {/* Right side button stack - thumb zone optimized, bottom to top order */}
       <div 
         className={cn(
-          'fixed right-2.5 z-40',
-          'flex flex-col-reverse items-center gap-2.5',
+          'fixed right-3 z-40',
+          'flex flex-col-reverse items-center gap-3',
           'transition-all duration-500 ease-out',
           isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12 pointer-events-none'
         )}
-        style={{ bottom: 'calc(116px + env(safe-area-inset-bottom, 0px))' }}
+        style={{ bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))' }}
       >
         {/* 1st from bottom: Like (Heart) with MorphingLikeButton */}
         <LongPressButtonWrapper buttonId="like-button" buttonLabel="Like">
