@@ -63,7 +63,7 @@ export const CrossNavigation: React.FC<CrossNavigationProps> = ({
   }, [onNavigate]);
 
   const baseClasses = "fixed z-40 flex items-center gap-2 transition-all duration-300 pointer-events-auto";
-  const visibleClasses = "opacity-90 scale-100";
+  const visibleClasses = "opacity-80 scale-100";
   const hiddenClasses = "opacity-0 scale-75 pointer-events-none";
 
   return (
@@ -73,12 +73,12 @@ export const CrossNavigation: React.FC<CrossNavigationProps> = ({
         onClick={() => handleClick('up')}
         className={cn(
           baseClasses,
-          "top-6 left-1/2 -translate-x-1/2 flex-col",
+          "top-20 left-1/2 -translate-x-1/2 flex-col",
           visibleDirection === 'up' && isAnimating ? visibleClasses : hiddenClasses
         )}
       >
-        <ChevronUp className="w-8 h-8 text-primary animate-bounce" />
-        <span className="text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full">
+        <ChevronUp className="w-5 h-5 text-primary/80" />
+        <span className="text-[11px] font-medium tracking-wide text-foreground/90 bg-background/60 backdrop-blur-md px-2.5 py-[3px] rounded-full">
           {labels.up}
         </span>
       </button>
@@ -88,12 +88,12 @@ export const CrossNavigation: React.FC<CrossNavigationProps> = ({
         onClick={() => handleClick('down')}
         className={cn(
           baseClasses,
-          "bottom-28 left-1/2 -translate-x-1/2 flex-col-reverse",
+          "bottom-36 left-1/2 -translate-x-1/2 flex-col-reverse",
           visibleDirection === 'down' && isAnimating ? visibleClasses : hiddenClasses
         )}
       >
-        <ChevronDown className="w-8 h-8 text-primary animate-bounce" />
-        <span className="text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full">
+        <ChevronDown className="w-5 h-5 text-primary/80" />
+        <span className="text-[11px] font-medium tracking-wide text-foreground/90 bg-background/60 backdrop-blur-md px-2.5 py-[3px] rounded-full">
           {labels.down}
         </span>
       </button>
@@ -107,8 +107,8 @@ export const CrossNavigation: React.FC<CrossNavigationProps> = ({
           visibleDirection === 'left' && isAnimating ? visibleClasses : hiddenClasses
         )}
       >
-        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-        <span className="text-xs sm:text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
+        <ChevronLeft className="w-5 h-5 text-primary/80" />
+        <span className="text-[11px] font-medium tracking-wide text-foreground/90 bg-background/60 backdrop-blur-md px-2.5 py-[3px] rounded-full">
           {labels.left}
         </span>
       </button>
@@ -122,10 +122,10 @@ export const CrossNavigation: React.FC<CrossNavigationProps> = ({
           visibleDirection === 'right' && isAnimating ? visibleClasses : hiddenClasses
         )}
       >
-        <span className="text-xs sm:text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
+        <span className="text-[11px] font-medium tracking-wide text-foreground/90 bg-background/60 backdrop-blur-md px-2.5 py-[3px] rounded-full">
           {labels.right}
         </span>
-        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+        <ChevronRight className="w-5 h-5 text-primary/80" />
       </button>
     </>
   );
