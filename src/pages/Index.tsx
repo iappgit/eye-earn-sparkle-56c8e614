@@ -598,9 +598,6 @@ const Index = () => {
     }
   };
 
-  // Get configured pages for each direction
-  const leftPages = getPagesByDirection('left');
-  const rightPages = getPagesByDirection('right');
   const isAtCenter = currentState.direction === 'center';
 
   return (
