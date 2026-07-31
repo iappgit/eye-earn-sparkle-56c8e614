@@ -137,10 +137,10 @@ var search_promotions_default = defineTool4({
 // src/lib/mcp/index.ts
 var projectRef = "tjykxqhliywnmelyuscn";
 var mcp_default = defineMcp({
-  name: "iview-mcp",
-  title: "iView",
+  name: "eye-rewards",
+  title: "Eye Rewards",
   version: "0.1.0",
-  instructions: "Tools for the iView app. Use these to read the signed-in user's profile, saved (watch-later) videos, notifications, and to search active promotions.",
+  instructions: "Tools for the Eye Rewards app. Use these to read the signed-in user's profile, saved (watch-later) videos, notifications, and to search active promotions.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"

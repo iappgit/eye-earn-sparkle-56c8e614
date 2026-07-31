@@ -11,9 +11,9 @@
   },
   "mcp": {
     "server": {
-      "name": "iview-mcp",
+      "name": "eye-rewards",
       "version": "0.1.0",
-      "title": "iView"
+      "title": "Eye Rewards"
     },
     "tools": [
       {
