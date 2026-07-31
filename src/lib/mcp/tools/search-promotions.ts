@@ -12,7 +12,7 @@ function db(ctx: ToolContext) {
 export default defineTool({
   name: "search_promotions",
   title: "Search promotions",
-  description: "Search active iView promotions by keyword or category. Returns location, reward, and business info.",
+  description: "Search active Eye Rewards promotions by keyword or category. Returns location, reward, and business info.",
   inputSchema: {
     query: z.string().trim().optional().describe("Free-text search matched against business name/description"),
     category: z.string().trim().optional(),

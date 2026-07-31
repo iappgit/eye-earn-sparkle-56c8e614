@@ -17,7 +17,7 @@ function db(ctx) {
 var get_profile_default = defineTool({
   name: "get_profile",
   title: "Get my profile",
-  description: "Fetch the signed-in user's iView profile (username, balances, stats).",
+  description: "Fetch the signed-in user's Eye Rewards profile (username, balances, stats).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
@@ -111,7 +111,7 @@ function db4(ctx) {
 var search_promotions_default = defineTool4({
   name: "search_promotions",
   title: "Search promotions",
-  description: "Search active iView promotions by keyword or category. Returns location, reward, and business info.",
+  description: "Search active Eye Rewards promotions by keyword or category. Returns location, reward, and business info.",
   inputSchema: {
     query: z3.string().trim().optional().describe("Free-text search matched against business name/description"),
     category: z3.string().trim().optional(),
@@ -137,10 +137,10 @@ var search_promotions_default = defineTool4({
 // src/lib/mcp/index.ts
 var projectRef = "tjykxqhliywnmelyuscn";
 var mcp_default = defineMcp({
-  name: "iview-mcp",
-  title: "iView",
+  name: "eye-rewards",
+  title: "Eye Rewards",
   version: "0.1.0",
-  instructions: "Tools for the iView app. Use these to read the signed-in user's profile, saved (watch-later) videos, notifications, and to search active promotions.",
+  instructions: "Tools for the Eye Rewards app. Use these to read the signed-in user's profile, saved (watch-later) videos, notifications, and to search active promotions.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"

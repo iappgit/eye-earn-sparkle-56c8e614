@@ -11,15 +11,15 @@
   },
   "mcp": {
     "server": {
-      "name": "iview-mcp",
+      "name": "eye-rewards",
       "version": "0.1.0",
-      "title": "iView"
+      "title": "Eye Rewards"
     },
     "tools": [
       {
         "name": "get_profile",
         "title": "Get my profile",
-        "description": "Fetch the signed-in user's iView profile (username, balances, stats).",
+        "description": "Fetch the signed-in user's Eye Rewards profile (username, balances, stats).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -86,7 +86,7 @@
       {
         "name": "search_promotions",
         "title": "Search promotions",
-        "description": "Search active iView promotions by keyword or category. Returns location, reward, and business info.",
+        "description": "Search active Eye Rewards promotions by keyword or category. Returns location, reward, and business info.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
