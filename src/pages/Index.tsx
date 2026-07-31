@@ -10,6 +10,8 @@ import { UnifiedContentFeed } from '@/components/UnifiedContentFeed';
 import { MessagesScreen } from '@/components/MessagesScreen';
 import { CrossNavigation } from '@/components/CrossNavigation';
 import { BottomNavigation } from '@/components/BottomNavigation';
+import { FeedTopBar } from '@/components/FeedTopBar';
+import { FeedCreatorChip } from '@/components/FeedCreatorChip';
 import { OnboardingFlow } from '@/components/onboarding';
 import { FriendsPostsFeed } from '@/components/FriendsPostsFeed';
 import { PromoVideosFeed } from '@/components/PromoVideosFeed';
@@ -49,32 +51,6 @@ const NetworkStatusAutoHide: React.FC = () => {
       isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
     )}>
       <NetworkStatusIndicator variant="badge" />
-    </div>
-  );
-};
-
-// Auto-hide wrapper for screen page indicators
-const ScreenIndicatorsAutoHide: React.FC<{
-  leftPages: any[];
-  rightPages: any[];
-  isAtCenter: boolean;
-}> = ({ leftPages, rightPages, isAtCenter }) => {
-  const { isVisible } = useControlsVisibility();
-  return (
-    <div className={cn(
-      'absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 transition-all duration-500',
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
-    )}>
-      {leftPages.length > 0 && (
-        <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
-      )}
-      <div className={cn(
-        "h-1 rounded-full transition-all duration-300",
-        isAtCenter ? "w-6 bg-white" : "w-2 bg-white/40"
-      )} />
-      {rightPages.length > 0 && (
-        <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
-      )}
     </div>
   );
 };
@@ -214,7 +190,7 @@ const Index = () => {
   const [showShare, setShowShare] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'up' | 'down' | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('feed');
   const [showRouteBuilderFromFeed, setShowRouteBuilderFromFeed] = useState(false);
   const [showSavedGallery, setShowSavedGallery] = useState(false);
   
@@ -608,20 +584,20 @@ const Index = () => {
       case 'messages':
         setShowMessages(true);
         break;
-      case 'discover':
+      case 'explore':
         setShowMap(true);
         break;
-      case 'create':
-        setShowFeed(true); // Show personalized feed on create tab for now
+      case 'wallet':
+        setShowWallet(true);
+        break;
+      case 'notifications':
+        setShowMessages(true);
         break;
       default:
         break;
     }
   };
 
-  // Get configured pages for each direction
-  const leftPages = getPagesByDirection('left');
-  const rightPages = getPagesByDirection('right');
   const isAtCenter = currentState.direction === 'center';
 
   return (
@@ -658,6 +634,24 @@ const Index = () => {
 
               {/* Cross Navigation hints */}
               <CrossNavigation onNavigate={handleNavigate} activeDirection={activeDirection} />
+
+              {/* Minimal top bar: info · gold balance · notifications */}
+              <FeedTopBar
+                balance={icoins + vicoins}
+                onInfoClick={() => setShowAchievementsPanel(true)}
+                onBalanceClick={() => setShowWallet(true)}
+                onNotificationsClick={() => setShowMessages(true)}
+              />
+
+              {/* Lower-left creator chip */}
+              <FeedCreatorChip
+                displayName={currentMedia.creator?.displayName}
+                username={currentMedia.creator?.username}
+                avatarUrl={currentMedia.creator?.avatarUrl}
+                isVerified={currentMedia.creator?.isVerified}
+                title={currentMedia.title}
+                onClick={() => setShowProfile(true)}
+              />
 
 
               {/* Floating Controls */}
@@ -727,9 +721,6 @@ const Index = () => {
           ) : null}
         </div>
 
-        {/* Screen Indicators - hidden with controls */}
-        <ScreenIndicatorsAutoHide leftPages={leftPages} rightPages={rightPages} isAtCenter={isAtCenter} />
-
         {/* Coin slide animation on reward */}
         <CoinSlideAnimation
           type={coinSlideType}
@@ -748,13 +739,13 @@ const Index = () => {
         {/* Profile Screen */}
         <ProfileScreen
           isOpen={showProfile}
-          onClose={() => { setShowProfile(false); setActiveTab('home'); }}
+          onClose={() => { setShowProfile(false); setActiveTab('feed'); }}
         />
 
         {/* Discovery Map */}
         <DiscoveryMap
           isOpen={showMap}
-          onClose={() => { setShowMap(false); setActiveTab('home'); }}
+          onClose={() => { setShowMap(false); setActiveTab('feed'); }}
           promoRoute={promoRoute}
         />
 
@@ -765,7 +756,7 @@ const Index = () => {
               <div className="flex items-center justify-between p-4 border-b">
                 <h1 className="text-xl font-bold">For You</h1>
                 <button 
-                  onClick={() => { setShowFeed(false); setActiveTab('home'); }}
+                  onClick={() => { setShowFeed(false); setActiveTab('feed'); }}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   ✕
@@ -781,7 +772,7 @@ const Index = () => {
         {/* Messages Screen */}
         <MessagesScreen
           isOpen={showMessages}
-          onClose={() => { setShowMessages(false); setActiveTab('home'); }}
+          onClose={() => { setShowMessages(false); setActiveTab('feed'); }}
         />
 
         {/* Floating Route Banner - visible on feed when building a route */}

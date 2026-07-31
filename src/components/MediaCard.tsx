@@ -721,7 +721,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
       {/* Promo label - subtle top left */}
       {type === 'promo' && (
-        <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/50 backdrop-blur-md border border-primary/30 z-20">
+        <div className="absolute top-16 left-4 px-3 py-1 rounded-full bg-background/50 backdrop-blur-md border border-primary/30 z-20">
           <span className="text-xs font-medium gradient-text">PROMOTED</span>
         </div>
       )}
