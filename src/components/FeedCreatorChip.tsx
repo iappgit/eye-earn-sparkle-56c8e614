@@ -27,15 +27,15 @@ export const FeedCreatorChip: React.FC<FeedCreatorChipProps> = ({
   return (
     <div
       className={cn(
-        'fixed left-4 z-30 max-w-[58%] transition-all duration-500 ease-out',
+        'fixed left-4 z-30 max-w-[62%] transition-all duration-500 ease-out',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       )}
-      style={{ bottom: 'calc(104px + env(safe-area-inset-bottom, 0px))' }}
+      style={{ bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))' }}
     >
       <button
         type="button"
         onClick={onClick}
-        className="flex items-center gap-2.5 text-left group"
+        className="flex items-center gap-2 text-left group"
       >
         {avatarUrl ? (
           <img
