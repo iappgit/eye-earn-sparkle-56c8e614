@@ -55,7 +55,7 @@ export const FeedTopBar: React.FC<FeedTopBarProps> = ({
           'shadow-[0_0_18px_hsl(var(--icoin)/0.25)] transition-transform active:scale-95'
         )}
       >
-        <span className="w-4 h-4 rounded-full bg-icoin text-icoin-foreground text-[10px] font-bold flex items-center justify-center">
+        <span className="w-4 h-4 rounded-full bg-icoin text-background text-[10px] font-bold flex items-center justify-center">
           i
         </span>
         <span className="text-[13px] font-semibold tabular-nums text-icoin">
