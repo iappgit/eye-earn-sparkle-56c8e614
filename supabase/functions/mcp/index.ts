@@ -17,7 +17,7 @@ function db(ctx) {
 var get_profile_default = defineTool({
   name: "get_profile",
   title: "Get my profile",
-  description: "Fetch the signed-in user's iView profile (username, balances, stats).",
+  description: "Fetch the signed-in user's Eye Rewards profile (username, balances, stats).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
@@ -111,7 +111,7 @@ function db4(ctx) {
 var search_promotions_default = defineTool4({
   name: "search_promotions",
   title: "Search promotions",
-  description: "Search active iView promotions by keyword or category. Returns location, reward, and business info.",
+  description: "Search active Eye Rewards promotions by keyword or category. Returns location, reward, and business info.",
   inputSchema: {
     query: z3.string().trim().optional().describe("Free-text search matched against business name/description"),
     category: z3.string().trim().optional(),

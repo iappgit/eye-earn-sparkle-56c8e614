@@ -12,7 +12,7 @@ function db(ctx: ToolContext) {
 export default defineTool({
   name: "get_profile",
   title: "Get my profile",
-  description: "Fetch the signed-in user's iView profile (username, balances, stats).",
+  description: "Fetch the signed-in user's Eye Rewards profile (username, balances, stats).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {
