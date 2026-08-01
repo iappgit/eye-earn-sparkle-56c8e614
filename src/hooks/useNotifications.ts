@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -154,6 +154,9 @@ export const useNotifications = () => {
     }
   }, [user, fetchNotifications, fetchPreferences]);
 
+  const inAppEnabledRef = useRef(preferences?.in_app_enabled);
+  inAppEnabledRef.current = preferences?.in_app_enabled;
+
   // Real-time subscription
   useEffect(() => {
     if (!user) return;
@@ -179,7 +182,7 @@ export const useNotifications = () => {
           setUnreadCount(prev => prev + 1);
 
           // Show in-app toast if enabled
-          if (preferences?.in_app_enabled) {
+          if (inAppEnabledRef.current) {
             // Play notification sound
             notificationSoundService.playNotification();
             
@@ -189,12 +192,14 @@ export const useNotifications = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Notifications realtime] status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, preferences?.in_app_enabled]);
+  }, [user]);
 
   return {
     notifications,
