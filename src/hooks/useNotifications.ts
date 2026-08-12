@@ -161,8 +161,10 @@ export const useNotifications = () => {
   useEffect(() => {
     if (!user) return;
 
+    // Unique topic per mount: removeChannel() is async, so reusing a fixed
+    // topic can return an already-subscribed channel and throw.
     const channel = supabase
-      .channel('notifications-realtime')
+      .channel(`notifications-realtime-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
